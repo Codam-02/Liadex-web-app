@@ -1,0 +1,205 @@
+.header {
+  display: flex;
+  align-items: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #1A403F;
+  color: #DCE1DE;
+  padding: 10px 0;
+  z-index: 1000;
+}
+
+.title {
+  padding-left: 8px;
+  font-size: 35px;
+}
+
+.logo { 
+  filter: brightness(1.5);
+  filter: contrast(0.9);
+  padding: 3px;
+  padding-left: 0px;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+}
+
+.header-container2 {
+  display: flex;
+  align-items: center;
+}
+
+
+.header-button {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #1A403F;
+  color: #DCE1DE;
+  padding: 10px 20px;
+  font-size: 19px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.header-button:hover {
+  background-color: #1A403F;
+  color: #477A66;
+}
+
+.first-button {
+  padding-left: 300px;
+}
+
+.second-button {
+  padding-left: 30px;
+}
+
+.page {
+  background-color: #477A66;
+  font-size: 25px;
+  min-height: 100vh;
+  color: #DCE1DE;
+  display: flex;
+  justify-content: center;
+  padding-top: 85px;
+}
+
+
+
+
+.swap-section {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  background-color: #89cfb3;
+  padding: 26px;
+  height: fit-content;
+  border-radius: 10px;
+  max-height: fit-content;
+}
+
+.input-section {
+  padding-top: 5px;
+  padding-bottom: 7px;
+}
+
+.token-input {
+  display: flex;
+  width: 200px;
+  height: 60px;
+}
+
+.token-input input {
+  padding: 5px;
+  font-size: 17px;
+  border: 1px solid #DCE1DE;
+  border-radius: 10px;
+  margin-right: 10px;
+  min-height: 70px;
+}
+
+.token-input input:first-child {
+  flex: 1;
+}
+
+.arrows-icon {
+  color: #1A403F;
+  transition: color 0.2s ease-in-out;
+}
+
+.arrows-icon:hover {
+  color: #477A66;
+}
+
+.confirm-button {
+  padding: 10px 20px;
+  background-color: #1A403F;
+  color: #DCE1DE;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  min-height: 62px;
+  font-size: 35px;
+  min-width: 300px;
+}
+
+.confirm-button:hover {
+  background-color: #477A66;
+}
+
+.wallet-container {
+  padding-left: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.wallet-button {
+  display: inline-block;
+  padding: 10px 7px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #DCE1DE;
+  background-color: #477A66;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  text-align: center;
+  text-decoration: none;
+}
+
+.wallet-button:hover {
+  background-color: #89cfb3;
+  color: #DCE1DE;
+}
+
+.weth {
+  padding-left: 25px;
+}
+
+.ethweth{
+  padding-left: 40px;
+  display: flex;
+}
+
+.liquidity-pool-bar {
+  display: flex;
+  background-color: #DCE1DE;
+  height: fit-content;
+  width: fit-content;
+  padding-left: 25px;
+  padding-right: 25px;
+  align-items: center;
+  margin-top: 0px;
+  border-radius: 10px;
+}
+
+.liquidity-pool-text {
+  color: #2D3933;
+  font-size: 20;
+}
+
+.liquidity-pool-button {
+  font-size: 15px;
+  padding: 8px;
+  background-color: #1A403F;
+  color: #DCE1DE;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.liquidity-pool-button:hover {
+  background-color: #477A66;
+}
+
+.black {
+  color: #2D3933;
+}
