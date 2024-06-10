@@ -192,22 +192,23 @@ function WethButton(props) {
   )
 }
 
-function TokenInput({ value, onChange }) {
-  return (
-    <div className="token-input">
-      <input
-        type="text"
-        placeholder="Enter amount"
-        value={value}
-        onChange={onChange}
-      />
-    </div>
-  );
-}
+function TokenInput(props) {
+    return (
+      <div className="token-input">
+        <input
+          type="text"
+          placeholder="Enter amount"
+          value={props.value}
+          onChange={props.onChange}
+          disabled={!props.connected}
+        />
+      </div>
+    );
+  }
 
 function ConfirmButton(props) {
   return (
-    <button className="confirm-button" onClick={props.onClick}>{props.text}</button>
+    <button className="confirm-button" onClick={props.onClick} disabled={!props.connected}>{props.text}</button>
   )  
 }
 
@@ -5019,7 +5020,7 @@ function MainContent(props) {
       <div className="swap-section">
         <div className='input-section'>
           <div style={{ display: 'flex', padding: 0 }}>
-            <TokenInput value={swapInputValue1} onChange={handleSwapInputChange1} />
+            <TokenInput connected={props.connected} value={swapInputValue1} onChange={handleSwapInputChange1} />
             <p className='black' style={props.reverseInputs ? { paddingLeft: 43} : { paddingLeft: 52}}>
               {props.reverseInputs ? 'WETH' : 'LDX'}
             </p>
@@ -5028,13 +5029,13 @@ function MainContent(props) {
             <FontAwesomeIcon className='arrows-icon' icon="fa-solid fa-right-left" rotation={90} onClick={props.invertHook}/>
           </div>
           <div style={{ display: 'flex', padding: 0 }}>
-            <TokenInput value={swapInputValue2} onChange={handleSwapInputChange2} />
+            <TokenInput connected={props.connected} value={swapInputValue2} onChange={handleSwapInputChange2} />
             <p className='black' style={props.reverseInputs ? { paddingLeft: 52} : { paddingLeft: 43}}>
               {props.reverseInputs ? 'LDX' : 'WETH'}
             </p>
           </div>
         </div>
-        <ConfirmButton text={'Swap'} onClick={swap}/>
+        <ConfirmButton connected={props.connected} text={'Swap'} onClick={swap}/>
       </div>
     );
   }
@@ -5067,15 +5068,15 @@ function MainContent(props) {
         <div className="swap-section">
             <div className='input-section'>
                 <div style={{ display: 'flex', padding: 0 }}>
-                    <TokenInput value={poolInputValue1} onChange={handlePoolInputChange1}/>
+                    <TokenInput connected={props.connected} value={poolInputValue1} onChange={handlePoolInputChange1}/>
                     <p className='black' style={{ paddingLeft: 43 }}>WETH</p>
                 </div>
                 <div style={{ display: 'flex', padding: 0 }}>
-                    <TokenInput value={poolInputValue2} onChange={handlePoolInputChange2}/>
+                    <TokenInput connected={props.connected} value={poolInputValue2} onChange={handlePoolInputChange2}/>
                     <p className='black' style={{ paddingLeft: 52 }}>LDX</p>
                 </div>
             </div>
-        <ConfirmButton text='Add liquidity' onClick={addLiquidity}/>
+        <ConfirmButton connected={props.connected} text='Add liquidity' onClick={addLiquidity}/>
         </div>
     )
   }
@@ -5084,15 +5085,15 @@ function MainContent(props) {
         <div className="swap-section">
             <div className='input-section'>
                 <div style={{ display: 'flex', padding: 0 }}>
-                    <TokenInput value={poolInputValue1} onChange={handlePoolInputChange1}/>
+                    <TokenInput connected={props.connected} value={poolInputValue1} onChange={handlePoolInputChange1}/>
                     <p className='black' style={{ paddingLeft: 43 }}>WETH</p>
                 </div>
                 <div style={{ display: 'flex', padding: 0 }}>
-                    <TokenInput value={poolInputValue2} onChange={handlePoolInputChange2}/>
+                    <TokenInput connected={props.connected} value={poolInputValue2} onChange={handlePoolInputChange2}/>
                     <p className='black' style={{ paddingLeft: 52 }}>LDX</p>
                 </div>
             </div>
-        <ConfirmButton text='Withdraw' onClick={withdraw}/>
+        <ConfirmButton connected={props.connected} text='Withdraw' onClick={withdraw}/>
         </div>
     )
   }
@@ -5101,7 +5102,7 @@ function MainContent(props) {
       <div className="swap-section">
         <div className='input-section'>
           <div style={{ display: 'flex', padding: 0 }}>
-            <TokenInput value={inputValue} onChange={handleWrapInputChange} />
+            <TokenInput connected={props.connected} value={inputValue} onChange={handleWrapInputChange} />
             <p className='black' style={props.reverseInputs ? { paddingLeft: 43 } : { paddingLeft: 52 }}>
               {props.reverseInputs ? 'WETH' : 'ETH'}
             </p>
@@ -5110,13 +5111,13 @@ function MainContent(props) {
             <FontAwesomeIcon className='arrows-icon' icon="fa-solid fa-right-left" rotation={90} onClick={props.invertHook}/>
           </div>
           <div style={{ display: 'flex', padding: 0 }}>
-            <TokenInput value={inputValue} onChange={handleWrapInputChange} />
+            <TokenInput connected={props.connected} value={inputValue} onChange={handleWrapInputChange} />
             <p className='black' style={props.reverseInputs ? { paddingLeft: 52 } : { paddingLeft: 43 }}>
               {props.reverseInputs ? 'ETH' : 'WETH'}
             </p>
           </div>
         </div>
-        <ConfirmButton text={props.reverseInputs ? 'Unwrap' : 'Wrap'} onClick={props.reverseInputs ? unwrapEther : wrapEther}/>
+        <ConfirmButton connected={props.connected} text={props.reverseInputs ? 'Unwrap' : 'Wrap'} onClick={props.reverseInputs ? unwrapEther : wrapEther}/>
       </div>
     );
   }
@@ -5146,7 +5147,7 @@ function App() {
         <WalletSection walletConnected={metamaskConnected} walletHook={() => setMetamaskConnected(true)} buttonsHook={() => setCurrentVisualization('wrapper')}/>
       </header>
       <div className='page'>
-        <MainContent view={currentVisualization} reverseInputs={reverseInputs} invertHook={() => setReverseInputs(!reverseInputs)} addLiquidityHook={() => setCurrentVisualization('add liquidity')} withdrawHook={() => setCurrentVisualization('withdraw')}/>
+        <MainContent connected={metamaskConnected} view={currentVisualization} reverseInputs={reverseInputs} invertHook={() => setReverseInputs(!reverseInputs)} addLiquidityHook={() => setCurrentVisualization('add liquidity')} withdrawHook={() => setCurrentVisualization('withdraw')}/>
       </div>
     </div>
   );

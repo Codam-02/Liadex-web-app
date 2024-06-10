@@ -97,15 +97,26 @@
 .token-input input {
   padding: 5px;
   font-size: 17px;
-  border: 1px solid #DCE1DE;
+  font-weight: bold;
   border-radius: 10px;
   margin-right: 10px;
   min-height: 70px;
+  border: none;
+  outline: none;
+  background-color: #E8E6E1;
+  color: #2D3933;
+}
+
+.token-input input::placeholder {
+  color: #CDCEBD;
 }
 
 .token-input input:first-child {
   flex: 1;
 }
+
+
+
 
 .arrows-icon {
   color: #1A403F;
