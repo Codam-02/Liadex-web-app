@@ -138,11 +138,43 @@
   min-height: 62px;
   font-size: 35px;
   min-width: 300px;
+  position: relative;
+  overflow: hidden;
 }
 
 .confirm-button:hover {
   background-color: #477A66;
 }
+
+.confirm-button-loading {
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: #1A403F; /* Ensure background color doesn't change on hover */
+}
+
+.confirm-button-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -200%;
+  width: 300%; /* Make the gradient wider */
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: loadingAnimation 1s infinite;
+}
+
+@keyframes loadingAnimation {
+  0% {
+    left: -200%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
 
 .wallet-container {
   padding-left: 40px;

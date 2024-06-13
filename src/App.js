@@ -208,7 +208,7 @@ function TokenInput(props) {
 
 function ConfirmButton(props) {
   return (
-    <button className="confirm-button" onClick={props.onClick} disabled={!props.connected}>{props.text}</button>
+    <button className={props.loading ? 'confirm-button confirm-button-loading' : 'confirm-button'} onClick={props.onClick} disabled={!props.connected}>{props.text}</button>
   )  
 }
 
@@ -222,6 +222,7 @@ function MainContent(props) {
   const [poolInputValue2, setPoolInputValue2] = useState('');
 
   const [tokensApproved, setTokensApproved] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   function handleWrapInputChange (event) {
     const inputValue = event.target.value;
@@ -232,6 +233,7 @@ function MainContent(props) {
   };
 
   async function approveTokens() {
+    setLoading(true);
     const wethAddress = "0x4882C1E948Af0357f1240D8Ab007591B5ddb592A";
     const wethAbi = [
         {
@@ -1060,29 +1062,35 @@ function MainContent(props) {
     signer = await provider.getSigner();
     } catch (error) {
     console.error('Error sending transaction:', error);
+    setLoading(false);
     }
+    try {
+        if (props.view === 'swap') {
+            const approveContract = new BaseContract(props.reverseInputs ? wethAddress : liadexErc20Address,
+                                                    props.reverseInputs ? wethAbi : liadexErc20Abi,
+                                                    signer);
 
-    if (props.view === 'swap') {
-        const approveContract = new BaseContract(props.reverseInputs ? wethAddress : liadexErc20Address,
-                                                props.reverseInputs ? wethAbi : liadexErc20Abi,
-                                                signer);
+            const tx = await approveContract.approve(tradingPairAddress, ethers.parseEther('100'));
+            await tx.wait();
+            setTokensApproved(true);
+            setLoading(false);
+        }
+        else if(props.view === 'add liquidity') {
+            const wethContract = new BaseContract(wethAddress, wethAbi, signer);
+            const liadexContract = new BaseContract(liadexErc20Address, liadexErc20Abi, signer);
 
-        const tx = await approveContract.approve(tradingPairAddress, ethers.parseEther('100'));
-        await tx.wait();
-        setTokensApproved(true);
+            const tx1 = await wethContract.approve(tradingPairAddress, ethers.parseEther('100'));
+            await tx1.wait();
+
+            const tx2 = await liadexContract.approve(tradingPairAddress, ethers.parseEther('100'));
+            await tx2.wait();
+
+            setTokensApproved(true);
+            setLoading(false);
+        }
     }
-
-    else if(props.view === 'add liquidity') {
-        const wethContract = new BaseContract(wethAddress, wethAbi, signer);
-        const liadexContract = new BaseContract(liadexErc20Address, liadexErc20Abi, signer);
-
-        const tx1 = await wethContract.approve(tradingPairAddress, ethers.parseEther('100'));
-        await tx1.wait();
-
-        const tx2 = await liadexContract.approve(tradingPairAddress, ethers.parseEther('100'));
-        await tx2.wait();
-
-        setTokensApproved(true);
+    catch {
+        setLoading(false);
     }
   }
 
@@ -4478,8 +4486,10 @@ function MainContent(props) {
   }, [props.reverseInputs]);
 
   async function wrapEther() {
+    setLoading(true);
     if (!window.ethereum) {
       console.error('MetaMask is not installed');
+      setLoading(false);
       return;
     }
   
@@ -4498,14 +4508,17 @@ function MainContent(props) {
   
       const transactionResponse = await signer.sendTransaction(tx);
       await transactionResponse.wait();
+      setLoading(false);
   
       console.log('Transaction successful:', transactionResponse);
     } catch (error) {
       console.error('Error sending transaction:', error);
+      setLoading(false);
     }
   };
 
   async function unwrapEther() {
+    setLoading(true);
     const wrapperContract = {
       address : '0x4882C1E948Af0357f1240D8Ab007591B5ddb592A' ,
       abi : [
@@ -4888,6 +4901,7 @@ function MainContent(props) {
     };
     if (!window.ethereum) {
       console.error('MetaMask is not installed');
+      setLoading(false);
       return;
     }
 
@@ -4903,14 +4917,17 @@ function MainContent(props) {
 
       const transactionResponse = await contract.unwrap(valueInWei);
       await transactionResponse.wait();
+      setLoading(false);
 
       console.log('Transaction successful:', transactionResponse);
     } catch (error) {
       console.error('Error sending transaction:', error);
+      setLoading(false);
     }
   };
 
   async function swap() {
+    setLoading(true);
     const tradingPairContract = {
       address : '0xF171391198346fa8b52D104cf79700335538f8aF' ,
       abi : [
@@ -5504,6 +5521,7 @@ function MainContent(props) {
     };
     if (!window.ethereum) {
       console.error('MetaMask is not installed');
+      setLoading(false);
       return;
     }
 
@@ -5521,19 +5539,23 @@ function MainContent(props) {
       if (props.reverseInputs) {
         transactionResponse = await contract.swap(valueInWei, 0);
         await transactionResponse.wait();
+        setLoading(false);
       }
       else {
         transactionResponse = await contract.swap(0, valueInWei);
         await transactionResponse.wait();
+        setLoading(false);
       }
 
       console.log('Transaction successful:', transactionResponse);
     } catch (error) {
       console.error('Error sending transaction:', error);
+      setLoading(false);
     }
   };
 
   async function addLiquidity() {
+    setLoading(true);
     const tradingPairContract = {
         address : '0xF171391198346fa8b52D104cf79700335538f8aF' ,
         abi : [
@@ -6127,6 +6149,7 @@ function MainContent(props) {
       };
       if (!window.ethereum) {
         console.error('MetaMask is not installed');
+        setLoading(false);
         return;
       }
   
@@ -6145,14 +6168,17 @@ function MainContent(props) {
 
         transactionResponse = await contract.addLiquidity(amountA, amountB);
         await transactionResponse.wait();
+        setLoading(false);
   
         console.log('Transaction successful:', transactionResponse);
       } catch (error) {
         console.error('Error sending transaction:', error);
+        setLoading(false);
       }
   }
 
   async function withdraw() {
+    setLoading(true);
     const tradingPairContract = {
         address : '0xF171391198346fa8b52D104cf79700335538f8aF' ,
         abi : [
@@ -6746,6 +6772,7 @@ function MainContent(props) {
       };
       if (!window.ethereum) {
         console.error('MetaMask is not installed');
+        setLoading(false);
         return;
       }
   
@@ -6764,10 +6791,12 @@ function MainContent(props) {
 
         transactionResponse = await contract.withdraw(amountA, amountB);
         await transactionResponse.wait();
+        setLoading(false);
   
         console.log('Transaction successful:', transactionResponse);
       } catch (error) {
         console.error('Error sending transaction:', error);
+        setLoading(false);
       }
   }
 
@@ -6791,7 +6820,7 @@ function MainContent(props) {
             </p>
           </div>
         </div>
-        <ConfirmButton connected={props.connected} text={tokensApproved ? 'Swap' : 'Approve'} onClick={tokensApproved ? swap : approveTokens}/>
+        <ConfirmButton loading={loading} connected={props.connected} text={tokensApproved ? 'Swap' : 'Approve'} onClick={tokensApproved ? swap : approveTokens}/>
       </div>
     );
   }
@@ -6832,7 +6861,7 @@ function MainContent(props) {
                     <p className='black' style={{ paddingLeft: 52 }}>LDX</p>
                 </div>
             </div>
-        <ConfirmButton connected={props.connected} text={tokensApproved ? 'Add liquidity' : 'Approve'} onClick={tokensApproved ? addLiquidity : approveTokens}/>
+        <ConfirmButton loading={loading} connected={props.connected} text={tokensApproved ? 'Add liquidity' : 'Approve'} onClick={tokensApproved ? addLiquidity : approveTokens}/>
         </div>
     )
   }
@@ -6849,7 +6878,7 @@ function MainContent(props) {
                     <p className='black' style={{ paddingLeft: 52 }}>LDX</p>
                 </div>
             </div>
-        <ConfirmButton connected={props.connected} text='Withdraw' onClick={withdraw}/>
+        <ConfirmButton loading={loading} connected={props.connected} text='Withdraw' onClick={withdraw}/>
         </div>
     )
   }
@@ -6873,7 +6902,7 @@ function MainContent(props) {
             </p>
           </div>
         </div>
-        <ConfirmButton connected={props.connected} text={props.reverseInputs ? 'Unwrap' : 'Wrap'} onClick={props.reverseInputs ? unwrapEther : wrapEther}/>
+        <ConfirmButton loading={loading} connected={props.connected} text={props.reverseInputs ? 'Unwrap' : 'Wrap'} onClick={props.reverseInputs ? unwrapEther : wrapEther}/>
       </div>
     );
   }
