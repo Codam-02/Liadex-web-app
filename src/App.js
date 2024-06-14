@@ -208,7 +208,7 @@ function TokenInput(props) {
 
 function ConfirmButton(props) {
   return (
-    <button className={props.loading ? 'confirm-button confirm-button-loading' : 'confirm-button'} onClick={props.onClick} disabled={!props.connected}>{props.text}</button>
+    <button className={props.loading ? 'confirm-button confirm-button-loading special-font' : 'confirm-button special-font'} onClick={props.onClick} disabled={!props.connected}>{props.text}</button>
   )  
 }
 

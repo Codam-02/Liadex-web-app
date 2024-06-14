@@ -246,3 +246,7 @@
 .black {
   color: #2D3933;
 }
+
+.special-font {
+  font-family: 'Montserrat', sans-serif;
+}
