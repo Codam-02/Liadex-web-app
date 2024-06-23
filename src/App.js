@@ -592,7 +592,7 @@ function WalletSection(props) {
   return (
     <div className='wallet-container'>
       <ConnectButton walletHook = {props.walletHook} account = {account} setAccount = {setAccount} onClick = {connectWallet}/>
-      {props.walletConnected ? <WrapperSection eth={ethBalance} weth={wethBalance} ldx={ldxBalance} account = {account} ethButtonHook={props.buttonsHook} wethButtonHook={props.buttonsHook}/>: null}
+      {props.walletConnected ? <WrapperSection eth={ethBalance} weth={wethBalance} ldx={ldxBalance} account={account} ethButtonHook={props.buttonsHook} wethButtonHook={props.buttonsHook} ldxButtonHook={props.ldxButtonHook}/>: null}
     </div>
   )
 }
@@ -622,6 +622,9 @@ function WrapperSection(props) {
       </div>
       <div className='weth'>
         <WethButton balance={props.weth} onClick={props.wethButtonHook}/>
+      </div>
+      <div className='weth'>
+        <LdxButton balance={props.ldxBalance} onClick={props.ldxButtonHook}/>
       </div>
     </div>
   )
@@ -7382,7 +7385,7 @@ function App() {
             <HeaderButton onClick={() => setCurrentVisualization('liquidity pools')} name="Liquidity Pools" />
           </div>
         </div>
-        <WalletSection walletConnected={metamaskConnected} walletHook={() => setMetamaskConnected(true)} buttonsHook={() => setCurrentVisualization('wrapper')}/>
+        <WalletSection walletConnected={metamaskConnected} walletHook={() => setMetamaskConnected(true)} buttonsHook={() => setCurrentVisualization('wrapper')} ldxButtonHook={() => setCurrentVisualization('swap')}/>
       </header>
       <div className='page'>
         <MainContent connected={metamaskConnected} view={currentVisualization} reverseInputs={reverseInputs} invertHook={() => setReverseInputs(!reverseInputs)} addLiquidityHook={() => setCurrentVisualization('add liquidity')} withdrawHook={() => setCurrentVisualization('withdraw')}/>
