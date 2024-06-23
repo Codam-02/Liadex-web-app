@@ -624,7 +624,7 @@ function WrapperSection(props) {
         <WethButton balance={props.weth} onClick={props.wethButtonHook}/>
       </div>
       <div className='weth'>
-        <LdxButton balance={props.ldxBalance} onClick={props.ldxButtonHook}/>
+        <LdxButton balance={props.ldx} onClick={props.ldxButtonHook}/>
       </div>
     </div>
   )

@@ -184,7 +184,7 @@
 
 .wallet-button {
   display: inline-block;
-  padding: 10px 7px;
+  padding: 8px 3px;
   font-size: 16px;
   font-weight: 600;
   color: #DCE1DE;
@@ -203,11 +203,11 @@
 }
 
 .weth {
-  padding-left: 25px;
+  padding-left: 20px;
 }
 
 .ethweth{
-  padding-left: 40px;
+  padding-left: 30px;
   display: flex;
 }
 
