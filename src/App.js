@@ -69,6 +69,597 @@ function WalletSection(props) {
       }
     ]
   };
+  const tradingPairContract = {
+    address : '0xF171391198346fa8b52D104cf79700335538f8aF' ,
+    abi : [
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "tokenA",
+                  "type": "address"
+              },
+              {
+                  "internalType": "address",
+                  "name": "tokenB",
+                  "type": "address"
+              }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "allowance",
+                  "type": "uint256"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "needed",
+                  "type": "uint256"
+              }
+          ],
+          "name": "ERC20InsufficientAllowance",
+          "type": "error"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "balance",
+                  "type": "uint256"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "needed",
+                  "type": "uint256"
+              }
+          ],
+          "name": "ERC20InsufficientBalance",
+          "type": "error"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "approver",
+                  "type": "address"
+              }
+          ],
+          "name": "ERC20InvalidApprover",
+          "type": "error"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "receiver",
+                  "type": "address"
+              }
+          ],
+          "name": "ERC20InvalidReceiver",
+          "type": "error"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+              }
+          ],
+          "name": "ERC20InvalidSender",
+          "type": "error"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+              }
+          ],
+          "name": "ERC20InvalidSpender",
+          "type": "error"
+      },
+      {
+          "anonymous": false,
+          "inputs": [
+              {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+              },
+              {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+              },
+              {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+              }
+          ],
+          "name": "Approval",
+          "type": "event"
+      },
+      {
+          "anonymous": false,
+          "inputs": [
+              {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "amountA",
+                  "type": "uint256"
+              },
+              {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "amountB",
+                  "type": "uint256"
+              }
+          ],
+          "name": "LiquidityAddded",
+          "type": "event"
+      },
+      {
+          "anonymous": false,
+          "inputs": [
+              {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "amountA",
+                  "type": "uint256"
+              },
+              {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "amountB",
+                  "type": "uint256"
+              }
+          ],
+          "name": "LiquidityWithdrawn",
+          "type": "event"
+      },
+      {
+          "anonymous": false,
+          "inputs": [
+              {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "tokenSwapped",
+                  "type": "address"
+              },
+              {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "tokenObtained",
+                  "type": "address"
+              },
+              {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "amountSwapped",
+                  "type": "uint256"
+              },
+              {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "amountObtained",
+                  "type": "uint256"
+              }
+          ],
+          "name": "Swap",
+          "type": "event"
+      },
+      {
+          "anonymous": false,
+          "inputs": [
+              {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+              },
+              {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+              },
+              {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+              }
+          ],
+          "name": "Transfer",
+          "type": "event"
+      },
+      {
+          "inputs": [],
+          "name": "_tokenA",
+          "outputs": [
+              {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "_tokenB",
+          "outputs": [
+              {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "amountA",
+                  "type": "uint256"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "amountB",
+                  "type": "uint256"
+              }
+          ],
+          "name": "addLiquidity",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+              },
+              {
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+              }
+          ],
+          "name": "allowance",
+          "outputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+              }
+          ],
+          "name": "approve",
+          "outputs": [
+              {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+              }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+              }
+          ],
+          "name": "balanceOf",
+          "outputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "amountB",
+                  "type": "uint256"
+              }
+          ],
+          "name": "calculateTokenAEquivalent",
+          "outputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "amountA",
+                  "type": "uint256"
+              }
+          ],
+          "name": "calculateTokenBEquivalent",
+          "outputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "decimals",
+          "outputs": [
+              {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "getBalances",
+          "outputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "getK",
+          "outputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "getReserves",
+          "outputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "getTokenA",
+          "outputs": [
+              {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "getTokenB",
+          "outputs": [
+              {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "name",
+          "outputs": [
+              {
+                  "internalType": "string",
+                  "name": "",
+                  "type": "string"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "tokenAAmount",
+                  "type": "uint256"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "tokenBAmount",
+                  "type": "uint256"
+              }
+          ],
+          "name": "swap",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "symbol",
+          "outputs": [
+              {
+                  "internalType": "string",
+                  "name": "",
+                  "type": "string"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [],
+          "name": "totalSupply",
+          "outputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+              }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+              }
+          ],
+          "name": "transfer",
+          "outputs": [
+              {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+              }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+              },
+              {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+              }
+          ],
+          "name": "transferFrom",
+          "outputs": [
+              {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+              }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+      },
+      {
+          "inputs": [
+              {
+                  "internalType": "uint256",
+                  "name": "amountA",
+                  "type": "uint256"
+              },
+              {
+                  "internalType": "uint256",
+                  "name": "amountB",
+                  "type": "uint256"
+              }
+          ],
+          "name": "withdraw",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+      }
+    ]
+  };
   async function connectWallet() {
     if (window.ethereum) {
       try {
@@ -561,6 +1152,7 @@ function WalletSection(props) {
         ];
         const wethContract = new ethers.Contract(wrapperContract.address, wrapperContract.abi, provider);
         const ldxContract = new ethers.Contract(liadexErc20Address, liadexErc20Abi, provider);
+        const tradingPair = new ethers.Contract(tradingPairContract.address, tradingPairContract.abi, provider);
 
 
         const wethBalance_ = await wethContract.balanceOf(signerAddress);
@@ -574,6 +1166,17 @@ function WalletSection(props) {
         const ldxBalance_ = await ldxContract.balanceOf(signerAddress);
         const formattedLdxBalance = parseFloat(ethers.formatEther(ldxBalance_)).toFixed(4);
         setLdxBalance(formattedLdxBalance);
+
+        const liquidityTokenBalance = await tradingPair.balanceOf(signerAddress);
+        const liquidityTokenSupply = await tradingPair.totalSupply();
+        const [reserveA, ] = await tradingPair.getReserves();
+        const tokenAProvided = ((liquidityTokenBalance * reserveA) / liquidityTokenSupply) - 100000000000000n;
+        const tokenBProvided = await tradingPair.calculateTokenBEquivalent(tokenAProvided);
+        const formattedTokenAProvided = parseFloat(ethers.formatEther(tokenAProvided)).toFixed(4);
+        const formattedTokenBProvided = parseFloat(ethers.formatEther(tokenBProvided)).toFixed(4);
+        props.positionHook1(formattedTokenAProvided);
+        props.positionHook2(formattedTokenBProvided);
+
 
         // Get the user's account
         const address = await signer.getAddress();
@@ -7286,20 +7889,27 @@ function MainContent(props) {
     };
     return (
       <div className='liquidity-pool-bar'>
-        <div style={{marginRight: 60}}>
-          <p className='liquidity-pool-text black'>{shortenAddress(tradingPairContract.address)}</p>
+        <div style={{display: 'flex', alignItems: 'center'}}>
+            <div style={{marginRight: 60}}>
+            <p className='liquidity-pool-text black'>{shortenAddress(tradingPairContract.address)}</p>
+            </div>
+            <div style={{marginRight: 30}}>
+            <p className='liquidity-pool-text black'>WETH</p>
+            </div>
+            <div style={{marginRight: 70}}>
+            <p className='liquidity-pool-text black'>LDX</p>
+            </div>
+            <div style={{marginRight: 30}}>
+            <button className='liquidity-pool-button' onClick={props.addLiquidityHook}>Add Liquidity</button>
+            </div>
+            <div>
+            <button className='liquidity-pool-button' onClick={props.withdrawHook}>Withdraw</button>
+            </div>
         </div>
-        <div style={{marginRight: 30}}>
-          <p className='liquidity-pool-text black'>WETH</p>
-        </div>
-        <div style={{marginRight: 70}}>
-          <p className='liquidity-pool-text black'>LDX</p>
-        </div>
-        <div style={{marginRight: 30}}>
-          <button className='liquidity-pool-button' onClick={props.addLiquidityHook}>Add Liquidity</button>
-        </div>
-        <div>
-          <button className='liquidity-pool-button' onClick={props.withdrawHook}>Withdraw</button>
+        <div style={{justifyContent: 'center', textAlign: 'center', alignItems: 'center'}}>
+            <p className='liquidity-pool-text black'>Current positions:</p>    
+            <p className='liquidity-pool-text black'>WETH: {props.liquidity1}</p>    
+            <p className='liquidity-pool-text black'>LDX: {props.liquidity2}</p>
         </div>
       </div>
     )
@@ -7369,6 +7979,8 @@ function App() {
   const [currentVisualization, setCurrentVisualization] = useState('swap');
   const [metamaskConnected, setMetamaskConnected] = useState(false);
   const [reverseInputs, setReverseInputs] = useState(false);
+  const [liquidityPosition1, setLiquidityPosition1] = useState(null);
+  const [liquidityPosition2, setLiquidityPosition2] = useState(null);
 
   return (
     <div>
@@ -7385,10 +7997,10 @@ function App() {
             <HeaderButton onClick={() => setCurrentVisualization('liquidity pools')} name="Liquidity Pools" />
           </div>
         </div>
-        <WalletSection walletConnected={metamaskConnected} walletHook={() => setMetamaskConnected(true)} buttonsHook={() => setCurrentVisualization('wrapper')} ldxButtonHook={() => setCurrentVisualization('swap')}/>
+        <WalletSection walletConnected={metamaskConnected} walletHook={() => setMetamaskConnected(true)} buttonsHook={() => setCurrentVisualization('wrapper')} ldxButtonHook={() => setCurrentVisualization('swap')} positionHook1 = {setLiquidityPosition1} positionHook2 = {setLiquidityPosition2}/>
       </header>
       <div className='page'>
-        <MainContent connected={metamaskConnected} view={currentVisualization} reverseInputs={reverseInputs} invertHook={() => setReverseInputs(!reverseInputs)} addLiquidityHook={() => setCurrentVisualization('add liquidity')} withdrawHook={() => setCurrentVisualization('withdraw')}/>
+        <MainContent connected={metamaskConnected} view={currentVisualization} reverseInputs={reverseInputs} invertHook={() => setReverseInputs(!reverseInputs)} addLiquidityHook={() => setCurrentVisualization('add liquidity')} withdrawHook={() => setCurrentVisualization('withdraw')} liquidity1 = {liquidityPosition1} liquidity2 = {liquidityPosition2}/>
       </div>
     </div>
   );

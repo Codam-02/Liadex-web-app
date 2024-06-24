@@ -212,7 +212,6 @@
 }
 
 .liquidity-pool-bar {
-  display: flex;
   background-color: #DCE1DE;
   height: fit-content;
   width: fit-content;
