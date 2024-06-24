@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/Liadex-web-app/static/css/main.5186f60b.css",
-    "main.js": "/Liadex-web-app/static/js/main.27e91062.js",
+    "main.js": "/Liadex-web-app/static/js/main.953592ae.js",
     "static/js/453.a380f5d6.chunk.js": "/Liadex-web-app/static/js/453.a380f5d6.chunk.js",
     "index.html": "/Liadex-web-app/index.html",
     "main.5186f60b.css.map": "/Liadex-web-app/static/css/main.5186f60b.css.map",
-    "main.27e91062.js.map": "/Liadex-web-app/static/js/main.27e91062.js.map",
+    "main.953592ae.js.map": "/Liadex-web-app/static/js/main.953592ae.js.map",
     "453.a380f5d6.chunk.js.map": "/Liadex-web-app/static/js/453.a380f5d6.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.5186f60b.css",
-    "static/js/main.27e91062.js"
+    "static/js/main.953592ae.js"
   ]
 }
