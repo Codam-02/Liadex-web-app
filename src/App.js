@@ -1169,13 +1169,13 @@ function WalletSection(props) {
 
         const liquidityTokenBalance = await tradingPair.balanceOf(signerAddress);
         const liquidityTokenSupply = await tradingPair.totalSupply();
-        const [reserveA, ] = await tradingPair.getReserves();
-        const tokenAProvided = ((liquidityTokenBalance * reserveA) / liquidityTokenSupply) - 100000000000000n;
-        const tokenBProvided = await tradingPair.calculateTokenBEquivalent(tokenAProvided);
+        const [reserveA, reserveB] = await tradingPair.getReserves();
+        const tokenAProvided = ((liquidityTokenBalance * reserveA) / liquidityTokenSupply);
+        const tokenBProvided = ((liquidityTokenBalance * reserveB) / liquidityTokenSupply);
         const formattedTokenAProvided = parseFloat(ethers.formatEther(tokenAProvided)).toFixed(4);
         const formattedTokenBProvided = parseFloat(ethers.formatEther(tokenBProvided)).toFixed(4);
-        props.positionHook1(formattedTokenAProvided);
-        props.positionHook2(formattedTokenBProvided);
+        props.positionHook1(formattedTokenAProvided > 0.0001 ? formattedTokenAProvided - 0.0001 : formattedTokenAProvided);
+        props.positionHook2(formattedTokenBProvided > 0.0001 ? formattedTokenBProvided - 0.0001 : formattedTokenBProvided);
 
 
         // Get the user's account
