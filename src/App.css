@@ -1,251 +1,101 @@
-.header {
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.App {
+  text-align: center;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 10px 20px;
+  width: 100%;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  background-color: #1A403F;
-  color: #DCE1DE;
-  padding: 10px 0;
-  z-index: 1000;
 }
 
-.title {
-  padding-left: 8px;
-  font-size: 35px;
-}
-
-.logo { 
-  filter: brightness(1.5);
-  filter: contrast(0.9);
-  padding: 3px;
-  padding-left: 0px;
-}
-
-.header-container {
+.header-content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  padding-right: 20px;
   padding-left: 20px;
 }
 
-.header-container2 {
+.header-left {
   display: flex;
   align-items: center;
 }
 
+.header-left h1 {
+  color: white;
+  margin: 0;
+  padding-left: 10px;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center buttons horizontally */
+  gap: 60px; /* Increased gap between buttons */
+  flex-grow: 1; /* Allow header-center to take remaining space */
+  margin-right: 120px;
+}
 
 .header-button {
-  font-family: 'Montserrat', sans-serif;
-  background-color: #1A403F;
-  color: #DCE1DE;
-  padding: 10px 20px;
-  font-size: 19px;
+  background-color: #61dafb;
   border: none;
-  outline: none;
+  color: #282c34;
+  padding: 10px 25px;
   cursor: pointer;
-  transition: color 0.3s;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
 .header-button:hover {
-  background-color: #1A403F;
-  color: #477A66;
+  background-color: #45aaf2;
 }
 
-.first-button {
-  padding-left: 300px;
+.App-main {
+  margin-top: 80px;
 }
 
-.second-button {
-  padding-left: 30px;
+.swap-box {
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  width: 300px;
 }
 
-.page {
-  background-color: #477A66;
-  font-size: 25px;
-  min-height: 100vh;
-  color: #DCE1DE;
-  display: flex;
-  justify-content: center;
-  padding-top: 85px;
+.swap-box h2 {
+  margin-top: 0;
 }
 
-
-
-
-.swap-section {
-  display: flex;
-  flex-direction: column;
-  max-width: 300px;
-  background-color: #89cfb3;
-  padding: 26px;
-  height: fit-content;
-  border-radius: 10px;
-  max-height: fit-content;
-}
-
-.input-section {
-  padding-top: 5px;
-  padding-bottom: 7px;
-}
-
-.token-input {
-  display: flex;
-  width: 200px;
-  height: 60px;
-}
-
-.token-input input {
-  padding: 5px;
-  font-size: 17px;
-  font-weight: bold;
-  border-radius: 10px;
-  margin-right: 10px;
-  min-height: 70px;
-  border: none;
-  outline: none;
-  background-color: #E8E6E1;
-  color: #2D3933;
-}
-
-.token-input input::placeholder {
-  color: #CDCEBD;
-}
-
-.token-input input:first-child {
-  flex: 1;
-}
-
-
-
-
-.arrows-icon {
-  color: #1A403F;
-  transition: color 0.2s ease-in-out;
-}
-
-.arrows-icon:hover {
-  color: #477A66;
-}
-
-.confirm-button {
-  padding: 10px 20px;
-  background-color: #1A403F;
-  color: #DCE1DE;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  min-height: 62px;
-  font-size: 35px;
-  min-width: 300px;
-  position: relative;
-  overflow: hidden;
-}
-
-.confirm-button:hover {
-  background-color: #477A66;
-}
-
-.confirm-button-loading {
-  cursor: not-allowed;
-  pointer-events: none;
-  background-color: #1A403F; /* Ensure background color doesn't change on hover */
-}
-
-.confirm-button-loading::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -200%;
-  width: 300%; /* Make the gradient wider */
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: loadingAnimation 1s infinite;
-}
-
-@keyframes loadingAnimation {
-  0% {
-    left: -200%;
-  }
-  50% {
-    left: 100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-
-.wallet-container {
-  padding-left: 40px;
-  display: flex;
-  align-items: center;
-}
-
-.wallet-button {
-  display: inline-block;
-  padding: 8px 3px;
+.swap-box input {
+  width: calc(100% - 20px);
+  margin-bottom: 10px;
+  padding: 10px;
   font-size: 16px;
-  font-weight: 600;
-  color: #DCE1DE;
-  background-color: #477A66;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.swap-button {
+  background-color: #61dafb;
   border: none;
-  border-radius: 5px;
+  color: #282c34;
+  padding: 10px 20px;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  text-align: center;
-  text-decoration: none;
-}
-
-.wallet-button:hover {
-  background-color: #89cfb3;
-  color: #DCE1DE;
-}
-
-.weth {
-  padding-left: 20px;
-}
-
-.ethweth{
-  padding-left: 30px;
-  display: flex;
-}
-
-.liquidity-pool-bar {
-  background-color: #DCE1DE;
-  height: fit-content;
-  width: fit-content;
-  padding-left: 25px;
-  padding-right: 25px;
-  align-items: center;
-  margin-top: 0px;
-  border-radius: 10px;
-}
-
-.liquidity-pool-text {
-  color: #2D3933;
-  font-size: 20;
-}
-
-.liquidity-pool-button {
-  font-size: 15px;
-  padding: 8px;
-  background-color: #1A403F;
-  color: #DCE1DE;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  border-radius: 4px;
   transition: background-color 0.3s ease;
 }
 
-.liquidity-pool-button:hover {
-  background-color: #477A66;
-}
-
-.black {
-  color: #2D3933;
-}
-
-.special-font {
-  font-family: 'Montserrat', sans-serif;
+.swap-button:hover {
+  background-color: #45aaf2;
 }
