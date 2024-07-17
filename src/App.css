@@ -74,7 +74,7 @@ body {
   transition: background-color 0.3s ease;
 }
 
-.header-button:hover {
+.wallet-button:hover {
   background-color: #45aaf2;
 }
 
