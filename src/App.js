@@ -12,6 +12,9 @@ function AppHeader() {
           <HeaderButton text='Ether wrapper'></HeaderButton>
           <HeaderButton text='Liquidity pools'></HeaderButton>
         </div>
+        <div className='header-right'>
+          <WalletButton/>
+        </div>
       </div>
     </header>
   )
@@ -31,7 +34,7 @@ function HeaderButton(props) {
 
 function WalletButton() {
   return (
-    <button className="header-button">Connect Metamask</button>
+    <button className="wallet-button">Connect Metamask</button>
   )
 }
 
