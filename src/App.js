@@ -43,7 +43,7 @@ function InputBox() {
     <div className="input-box">
       <InputEntry text='WETH'/>
       <InputEntry text='LDX'/>
-      <button className="swap-button">Swap</button>
+      <ConfirmButton text='Swap'/>
     </div>
   );
 }
@@ -66,6 +66,12 @@ function TokenInput() {
 function TokenLabel(props) {
   return (
     <span className="input-label">{props.text}</span>
+  )
+}
+
+function ConfirmButton(props) {
+  return (
+    <button className="confirm-button">{props.text}</button>
   )
 }
 
