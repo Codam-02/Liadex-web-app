@@ -93,26 +93,37 @@ body {
   background-color: #f0f0f0;
   border-radius: 8px;
   width: 300px;
-  margin-top: 100px;;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Spacing between inputs and button */
 }
 
-.swap-box h2 {
-  margin-top: 0;
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Spacing between input and label */
 }
 
-.swap-box input {
-  width: calc(100% - 20px);
-  margin-bottom: 10px;
+.input-group input {
+  flex-grow: 1;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
+.input-label {
+  background-color: #282c34;
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
 .swap-button {
-  background-color: #61dafb;
+  background-color: #F6851B; /* MetaMask-like orange */
   border: none;
-  color: #282c34;
+  color: white;
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 4px;
@@ -120,5 +131,5 @@ body {
 }
 
 .swap-button:hover {
-  background-color: #45aaf2;
+  background-color: #FFA500; /* Lighter shade of orange for hover */
 }
