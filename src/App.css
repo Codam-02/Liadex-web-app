@@ -1,6 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  background-color: #e6f7e6;
 }
 
 .App {
@@ -42,24 +43,24 @@ body {
 .header-center {
   display: flex;
   align-items: center;
-  justify-content: center; /* Center buttons horizontally */
-  gap: 60px; /* Increased gap between buttons */
-  flex-grow: 1; /* Allow header-center to take remaining space */
-  margin-right: 120px;
+  gap: 15px;
+  flex-grow: 1;
+  margin-left: 310px;
 }
 
 .header-button {
-  background-color: #61dafb;
+  background-color: #282c34;
   border: none;
-  color: #282c34;
-  padding: 10px 25px;
+  color: #61dafb;
+  padding: 8px 20px;
+  font-size: 16px;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s ease;
 }
 
 .header-button:hover {
-  background-color: #45aaf2;
+  color: #45aaf2;
 }
 
 .App-main {
