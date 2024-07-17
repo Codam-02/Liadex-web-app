@@ -1,4 +1,5 @@
 import './App.css'
+import { useState, useEffect } from 'react';
 
 function AppHeader() {
   return (
@@ -75,15 +76,24 @@ function ConfirmButton(props) {
   )
 }
 
-function App() {
+function MainContent(props) {
+  if (props.state === 'Swap') {
     return (
-      <div className="App">
-        <AppHeader/>
-        <main className="App-main">
-          <InputBox/>
-        </main>
-      </div>
+      <main className="App-main">
+        <InputBox/>
+      </main>
     )
+  }
+}
+
+function App() {
+  const [pageState, setPageState] = useState('Swap');
+  return (
+    <div className="App">
+      <AppHeader/>
+      <MainContent state={pageState}/>
+    </div>
+  )
 }
 
 export default App;
