@@ -51,7 +51,7 @@ body {
 .header-right {
   display: flex;
   align-items: center;
-  margin-right: 10px;
+  margin-right: 27px;
 }
 
 .header-button {
@@ -70,9 +70,9 @@ body {
 }
 
 .wallet-button {
-  background-color: #282c34;
+  background-color: #F6851B;
   border: none;
-  color: #61dafb;
+  color: #52240a;
   padding: 8px 20px;
   font-size: 16px;
   cursor: pointer;
@@ -81,7 +81,7 @@ body {
 }
 
 .wallet-button:hover {
-  background-color: #45aaf2;
+  background-color: #fdc763;
 }
 
 .App-main {
