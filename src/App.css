@@ -48,6 +48,12 @@ body {
   margin-left: 310px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
 .header-button {
   background-color: #282c34;
   border: none;
