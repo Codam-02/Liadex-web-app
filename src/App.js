@@ -1,5 +1,11 @@
 import './App.css'
 
+function HeaderButton(props) {
+  return (
+    <button className="header-button">{props.text}</button>
+  )
+}
+
 function App() {
     return (
       <div className="App">
