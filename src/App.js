@@ -29,6 +29,12 @@ function HeaderButton(props) {
   )
 }
 
+function WalletButton() {
+  return (
+    <button className="header-button">Connect Metamask</button>
+  )
+}
+
 function App() {
     return (
       <div className="App">
