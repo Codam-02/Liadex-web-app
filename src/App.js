@@ -55,7 +55,7 @@ function App() {
           <SwapBox/>
         </main>
       </div>
-    );
+    )
   }
 
 export default App;
