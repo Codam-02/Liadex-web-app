@@ -41,10 +41,17 @@ function WalletButton() {
 function SwapBox() {
   return (
     <div className="swap-box">
-      <input type="number" placeholder="Enter quantity" />
+      <div className="input-group">
+        <input type="text" placeholder="Enter quantity" />
+        <span className="input-label">LDX</span>
+      </div>
+      <div className="input-group">
+        <input type="text" placeholder="Enter quantity" />
+        <span className="input-label">WETH</span>
+      </div>
       <button className="swap-button">Swap</button>
     </div>
-  )
+  );
 }
 
 function App() {
