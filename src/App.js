@@ -1,5 +1,11 @@
 import './App.css'
 
+function Title() {
+  return (
+    <h1>LiaDex</h1>
+  ) 
+}
+
 function HeaderButton(props) {
   return (
     <button className="header-button">{props.text}</button>
@@ -12,11 +18,12 @@ function App() {
         <header className="App-header">
           <div className="header-content">
             <div className="header-left">
-              <h1>LiaDex</h1>
+              <Title></Title>
             </div>
             <div className="header-center">
-              <button className="header-button">Swap</button>
-              <button className="header-button">Liquidity Pools</button>
+              <HeaderButton text='Swap'></HeaderButton>
+              <HeaderButton text='Ether wrapper'></HeaderButton>
+              <HeaderButton text='Liquidity pools'></HeaderButton>
             </div>
           </div>
         </header>
