@@ -38,20 +38,35 @@ function WalletButton() {
   )
 }
 
-function SwapBox() {
+function InputBox() {
   return (
-    <div className="swap-box">
-      <div className="input-group">
-        <input type="text" placeholder="Enter quantity" />
-        <span className="input-label">LDX</span>
-      </div>
-      <div className="input-group">
-        <input type="text" placeholder="Enter quantity" />
-        <span className="input-label">WETH</span>
-      </div>
+    <div className="input-box">
+      <InputEntry text='WETH'/>
+      <InputEntry text='LDX'/>
       <button className="swap-button">Swap</button>
     </div>
   );
+}
+
+function InputEntry(props) {
+  return (
+    <div className="input-group">
+      <TokenInput/>
+      <TokenLabel text={props.text}/>
+    </div>
+  )
+}
+
+function TokenInput() {
+  return (
+    <input type="text" placeholder="Enter amount" />
+  )
+}
+
+function TokenLabel(props) {
+  return (
+    <span className="input-label">{props.text}</span>
+  )
 }
 
 function App() {
@@ -59,7 +74,7 @@ function App() {
       <div className="App">
         <AppHeader/>
         <main className="App-main">
-          <SwapBox/>
+          <InputBox/>
         </main>
       </div>
     )
