@@ -1,5 +1,22 @@
 import './App.css'
 
+function AppHeader() {
+  return (
+    <header className="App-header">
+      <div className="header-content">
+        <div className="header-left">
+          <Title/>
+        </div>
+        <div className="header-center">
+          <HeaderButton text='Swap'></HeaderButton>
+          <HeaderButton text='Ether wrapper'></HeaderButton>
+          <HeaderButton text='Liquidity pools'></HeaderButton>
+        </div>
+      </div>
+    </header>
+  )
+}
+
 function Title() {
   return (
     <h1>LiaDex</h1>
@@ -15,18 +32,7 @@ function HeaderButton(props) {
 function App() {
     return (
       <div className="App">
-        <header className="App-header">
-          <div className="header-content">
-            <div className="header-left">
-              <Title></Title>
-            </div>
-            <div className="header-center">
-              <HeaderButton text='Swap'></HeaderButton>
-              <HeaderButton text='Ether wrapper'></HeaderButton>
-              <HeaderButton text='Liquidity pools'></HeaderButton>
-            </div>
-          </div>
-        </header>
+        <AppHeader/>
         <main className="App-main">
           <div className="swap-box">
             <h2>Swap Tokens</h2>
