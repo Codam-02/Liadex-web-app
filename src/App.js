@@ -38,16 +38,21 @@ function WalletButton() {
   )
 }
 
+function SwapBox() {
+  return (
+    <div className="swap-box">
+      <input type="number" placeholder="Enter quantity" />
+      <button className="swap-button">Swap</button>
+    </div>
+  )
+}
+
 function App() {
     return (
       <div className="App">
         <AppHeader/>
         <main className="App-main">
-          <div className="swap-box">
-            <h2>Swap Tokens</h2>
-            <input type="number" placeholder="Enter quantity" />
-            <button className="swap-button">Swap</button>
-          </div>
+          <SwapBox/>
         </main>
       </div>
     );
