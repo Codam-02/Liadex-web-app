@@ -63,6 +63,21 @@ body {
   color: #45aaf2;
 }
 
+.wallet-button {
+  background-color: #282c34;
+  border: none;
+  color: #61dafb;
+  padding: 8px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.header-button:hover {
+  background-color: #45aaf2;
+}
+
 .App-main {
   margin-top: 80px;
 }
