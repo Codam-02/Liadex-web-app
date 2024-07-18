@@ -91,14 +91,21 @@ body {
 
 .input-box {
   margin-top: 100px;
-  padding: 40px 25px;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 35px;
+  padding-bottom: 25px;
   background-color: #aaa2a2c4;
   border-radius: 12px;
   width: fit-content;
   display: flex;
   flex-direction: column;
-  gap: 30px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  gap: 20px;
+}
+
+.input-box:nth-child(2) {
+  margin-bottom: 100px;
 }
 
 .input-group {
@@ -145,6 +152,7 @@ body {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   font-size: 23px;
+  margin-top: 30px;
 }
 
 .confirm-button:hover {
