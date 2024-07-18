@@ -95,7 +95,7 @@ body {
   padding-right: 25px;
   padding-top: 35px;
   padding-bottom: 25px;
-  background-color: #000000;
+  background-color: #737373;
   border-radius: 12px;
   width: fit-content;
   display: flex;
@@ -130,7 +130,7 @@ body {
 
 .input-label {
   font-family: 'Montserrat', sans-serif;
-  background-color: #495267;
+  background-color: #14213D;
   color: #FFFFFF;
   padding: 10px;
   border-radius: 8px;
@@ -140,7 +140,7 @@ body {
 
 .confirm-button {
   font-family: 'Montserrat', sans-serif;
-  background-color: #495267;
+  background-color: #14213D;
   border: none;
   color: #FFFFFF;
   padding: 10px 20px;
@@ -153,16 +153,16 @@ body {
 }
 
 .confirm-button:hover {
-  background-color: #14213D;
+  background-color: #444A58;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .invert-icon {
   font-size: 20px;
   margin-left: 280px;
-  color: #495267;
+  color: #14213D;
 }
 
 .invert-icon:hover {
-  color: #14213D;
+  color: #444A58;
 }
