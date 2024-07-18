@@ -48,7 +48,7 @@ function InputBox() {
   return (
     <div className="input-box">
       <InputEntry text='WETH'/>
-      <FontAwesomeIcon icon="fa-solid fa-right-left" rotation={90}/>
+      <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90}/>
       <InputEntry text='LDX'/>
       <ConfirmButton text='Swap'/>
     </div>
