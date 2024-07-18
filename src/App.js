@@ -1,5 +1,10 @@
 import './App.css'
 import { useState, useEffect } from 'react';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faRightLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+library.add(faRightLeft);
 
 function AppHeader() {
   return (
@@ -43,6 +48,7 @@ function InputBox() {
   return (
     <div className="input-box">
       <InputEntry text='WETH'/>
+      <FontAwesomeIcon className='arrows-icon' icon="fa-solid fa-right-left" rotation={90}/>
       <InputEntry text='LDX'/>
       <ConfirmButton text='Swap'/>
     </div>
