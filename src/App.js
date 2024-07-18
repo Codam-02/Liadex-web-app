@@ -8,7 +8,7 @@ import { ethers } from 'ethers';
 
 library.add(faRightLeft);
 
-function AppHeader() {
+function AppHeader(props) {
   return (
     <header className="App-header">
       <div className="header-content">
@@ -21,7 +21,7 @@ function AppHeader() {
           <HeaderButton text='Liquidity pools'></HeaderButton>
         </div>
         <div className='header-right'>
-          <WalletButton/>
+          <WalletSection contracts={props.contracts} connectedAccount={props.connectedAccount} setConnectedAccount={props.setConnectedAccount}/>
         </div>
       </div>
     </header>
@@ -40,9 +40,137 @@ function HeaderButton(props) {
   )
 }
 
-function WalletButton() {
+function WalletSection(props) {
+  const [ethBalance, setEthBalance] = useState(null);
+  const [wethBalance, setWethBalance] = useState(null);
+  const [ldxBalance, setLdxBalance] = useState(null);
+
+  if (props.connectedAccount === null) {
+    return (
+      <WalletButton contracts={props.contracts} connectedAccount={props.connectedAccount} setConnectedAccount={props.setConnectedAccount} setEthBalance={setEthBalance} setWethBalance={setWethBalance} setLdxBalance={setLdxBalance}/>
+    )
+  }
   return (
-    <button className="wallet-button">Connect Metamask</button>
+    <WalletData ethBalance={ethBalance} wethBalance={wethBalance} ldxBalance={ldxBalance}/>
+  )
+}
+
+function WalletButton(props) {
+  const wrapperContract = props.contracts.wrapperContract;
+  const liadexContract = props.contracts.liadexContract;
+  //const tradingPairContract = props.contracts.tradingPairContract;
+
+  async function connectWallet() {
+    if (window.ethereum) {
+      try {
+        // Request account access
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+  
+        // Check if Sepolia testnet is added and switch to it
+        const sepoliaChainId = '0xaa36a7'; // Sepolia testnet chain ID in hexadecimal
+  
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: sepoliaChainId }],
+          });
+          console.log('Switched to Sepolia testnet');
+        } catch (switchError) {
+          // This error code indicates that the chain has not been added to MetaMask
+          if (switchError.code === 4902) {
+            try {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [
+                  {
+                    chainId: sepoliaChainId,
+                    chainName: 'Sepolia Test Network',
+                    nativeCurrency: {
+                      name: 'Sepolia ETH',
+                      symbol: 'ETH',
+                      decimals: 18,
+                    },
+                    rpcUrls: ['https://rpc.sepolia.org'],
+                    blockExplorerUrls: ['https://sepolia.etherscan.io'],
+                  },
+                ],
+              });
+              console.log('Sepolia testnet added and switched');
+            } catch (addError) {
+              console.error('Failed to add Sepolia testnet:', addError);
+            }
+          } else {
+            console.error('Failed to switch to Sepolia testnet:', switchError);
+          }
+        }
+  
+        // Create an ethers provider
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        
+        // Get the signer
+        const signer = await provider.getSigner();
+        const signerAddress = await signer.getAddress();
+        
+        const wethContract = new ethers.Contract(wrapperContract.address, wrapperContract.abi, provider);
+        const ldxContract = new ethers.Contract(liadexContract.address, liadexContract.abi, provider);
+
+
+        const wethBalance_ = await wethContract.balanceOf(signerAddress);
+        const formattedWethBalance = parseFloat(ethers.formatEther(wethBalance_)).toFixed(4);
+        props.setWethBalance(formattedWethBalance);
+        
+        const ethBalance_ = await provider.getBalance(signerAddress);
+        const formattedEthBalance = parseFloat(ethers.formatEther(ethBalance_)).toFixed(4);
+        props.setEthBalance(formattedEthBalance);
+
+        const ldxBalance_ = await ldxContract.balanceOf(signerAddress);
+        const formattedLdxBalance = parseFloat(ethers.formatEther(ldxBalance_)).toFixed(4);
+        props.setLdxBalance(formattedLdxBalance);
+
+        /*
+        const liquidityTokenBalance = await tradingPair.balanceOf(signerAddress);
+        const liquidityTokenSupply = await tradingPair.totalSupply();
+        const [reserveA, reserveB] = await tradingPair.getReserves();
+        const tokenAProvided = ((liquidityTokenBalance * reserveA) / liquidityTokenSupply);
+        const tokenBProvided = ((liquidityTokenBalance * reserveB) / liquidityTokenSupply);
+        const formattedTokenAProvided = parseFloat(ethers.formatEther(tokenAProvided)).toFixed(4);
+        const formattedTokenBProvided = parseFloat(ethers.formatEther(tokenBProvided)).toFixed(4);
+        props.positionHook1(formattedTokenAProvided > 0.0001 ? formattedTokenAProvided - 0.0001 : formattedTokenAProvided);
+        props.positionHook2(formattedTokenBProvided > 0.0001 ? formattedTokenBProvided - 0.0001 : formattedTokenBProvided);
+        */
+
+        // Get the user's account
+        const address = await signer.getAddress();
+        props.setConnectedAccount(address);
+  
+        console.log('Connected account:', address);
+        props.walletHook();
+      } catch (error) {
+        console.error('Error connecting to MetaMask:', error);
+      }
+    } else {
+      console.error('MetaMask is not installed');
+    }
+  };
+
+  return (
+    <button className="wallet-button" onClick={connectWallet}>Connect Metamask</button>
+  )
+}
+
+function WalletData(props) {
+  return (
+    <div className='wallet-data'>
+      <WalletDataEntry currency='ETH' text={props.ethBalance}/>
+      <WalletDataEntry currency='WETH' text={props.wethBalance}/>
+      <WalletDataEntry currency='LDX' text={props.ldxBalance}/>
+    </div>
+  )
+}
+
+function WalletDataEntry(props) {
+  return (
+    <span className='wallet-data-entry'>{props.currency} {props.text}</span>
   )
 }
 
@@ -96,10 +224,11 @@ function MainContent(props) {
 
 function App() {
   const [pageState, setPageState] = useState('Swap');
-  
+  const [connectedAccount, setConnectedAccount] = useState(null);
+
   return (
     <div className="App">
-      <AppHeader contracts={contracts}/>
+      <AppHeader contracts={contracts} connectedAccount={connectedAccount} setConnectedAccount={setConnectedAccount}/>
       <MainContent state={pageState}/>
     </div>
   )
