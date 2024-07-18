@@ -18,7 +18,7 @@ function AppHeader(props) {
         <div className="header-center">
           <HeaderButton text='Swap' onClick={() => props.setPageState('Swap')}></HeaderButton>
           <HeaderButton text='Ether wrapper' onClick={() => props.setPageState('Ether wrapper')}></HeaderButton>
-          <HeaderButton text='Liquidity pools'></HeaderButton>
+          <HeaderButton text='Liquidity pools' onClick={() => props.setPageState('Liquidity pools')}></HeaderButton>
         </div>
         <div className='header-right'>
           <WalletSection contracts={props.contracts} connectedAccount={props.connectedAccount} setConnectedAccount={props.setConnectedAccount}/>
@@ -224,6 +224,28 @@ function ConfirmButton(props) {
   )
 }
 
+function TokenAddressEntry(props) {
+  return (
+    <button className='token-address-entry'>{props.address}</button>
+  )
+}
+
+function ContractAddressEntry(props) {
+  return (
+    <button className='contract-address-entry'>{props.address}</button>
+  )
+}
+
+function LiquidityPool(props) {
+  return (
+    <div className='liquidity-pool'>
+      <ContractAddressEntry address={props.contracts.tradingPairContract.address}/>
+      <TokenAddressEntry address={props.contracts.wrapperContract.address}/>
+      <TokenAddressEntry address={props.contracts.liadexContract.address}/>
+    </div>
+  )
+}
+
 function MainContent(props) {
   const [invertedInputs, setInvertedInputs] = useState(false);
 
@@ -234,9 +256,11 @@ function MainContent(props) {
       </div>
     )
   }
-  if (props.state === 'Liquidity pools') {
+  if (props.pageState === 'Liquidity pools') {
     return (
-      null
+      <div className="App-main">
+        <LiquidityPool contracts={props.contracts}/>
+      </div>
     )
   }
 }
@@ -248,7 +272,7 @@ function App() {
   return (
     <div className="App">
       <AppHeader contracts={contracts} connectedAccount={connectedAccount} setConnectedAccount={setConnectedAccount} setPageState={setPageState}/>
-      <MainContent pageState={pageState}/>
+      <MainContent contracts={contracts} pageState={pageState}/>
     </div>
   )
 }
