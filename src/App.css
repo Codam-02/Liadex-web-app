@@ -44,7 +44,7 @@ body {
   align-items: center;
   gap: 15px;
   flex-grow: 1;
-  margin-left: 290px;
+  margin-left: 310px;
 }
 
 .header-right {
@@ -82,7 +82,7 @@ body {
 }
 
 .wallet-button:hover {
-  background-color: #fd9b63;
+  background-color: #F1C47B;
 }
 
 .App-main {
