@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  background-color: #e6f7e6;
+  background-color: #E5E5E5;
 }
 
 .App {
@@ -12,7 +12,7 @@ body {
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #000000;
   padding: 10px 20px;
   width: 100%;
   position: fixed;
@@ -34,7 +34,7 @@ body {
 }
 
 .header-left h1 {
-  color: white;
+  color: #FFFFFF;
   margin: 0;
   padding-left: 10px;
 }
@@ -55,9 +55,9 @@ body {
 
 .header-button {
   font-family: 'Montserrat', sans-serif;
-  background-color: #282c34;
+  background-color: #000000;
   border: none;
-  color: #61dafb;
+  color: #FFFFFF;
   padding: 8px 20px;
   font-size: 17px;
   cursor: pointer;
@@ -66,14 +66,14 @@ body {
 }
 
 .header-button:hover {
-  color: #45aaf2;
+  color: #7D8391;
 }
 
 .wallet-button {
   font-family: 'Montserrat', sans-serif;
-  background-color: #F6851B;
+  background-color: #FCA311;
   border: none;
-  color: #52240a;
+  color: #FFFFFF;
   padding: 6px 16px;
   font-size: 18px;
   cursor: pointer;
@@ -82,7 +82,7 @@ body {
 }
 
 .wallet-button:hover {
-  background-color: #fdc763;
+  background-color: #fd9b63;
 }
 
 .App-main {
@@ -95,17 +95,13 @@ body {
   padding-right: 25px;
   padding-top: 35px;
   padding-bottom: 25px;
-  background-color: #aaa2a2c4;
+  background-color: #000000;
   border-radius: 12px;
   width: fit-content;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   gap: 15px;
-}
-
-.input-box:nth-child(2) {
-  margin-bottom: 100px;
 }
 
 .input-group {
@@ -123,18 +119,19 @@ body {
   border-radius: 8px;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   outline: none;
-  background-color: #f5f5f5;
+  color: #000000;
+  background-color: #E5E5E5;
   transition: box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .input-group input:focus {
-  background-color: #ffffff;
+  background-color: #FFFFFF;
 }
 
 .input-label {
   font-family: 'Montserrat', sans-serif;
-  background-color: #282c34;
-  color: white;
+  background-color: #495267;
+  color: #FFFFFF;
   padding: 10px;
   border-radius: 8px;
   font-size: 16px;
@@ -143,9 +140,9 @@ body {
 
 .confirm-button {
   font-family: 'Montserrat', sans-serif;
-  background-color: #345370;
+  background-color: #495267;
   border: none;
-  color: white;
+  color: #FFFFFF;
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 8px;
@@ -156,12 +153,16 @@ body {
 }
 
 .confirm-button:hover {
-  background-color: #526c8e;
+  background-color: #14213D;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .invert-icon {
   font-size: 20px;
   margin-left: 280px;
-  color: #282c34;
+  color: #495267;
+}
+
+.invert-icon:hover {
+  color: #14213D;
 }
