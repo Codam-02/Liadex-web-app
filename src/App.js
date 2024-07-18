@@ -16,8 +16,8 @@ function AppHeader(props) {
           <Title/>
         </div>
         <div className="header-center">
-          <HeaderButton text='Swap'></HeaderButton>
-          <HeaderButton text='Ether wrapper'></HeaderButton>
+          <HeaderButton text='Swap' onClick={() => props.setPageState('Swap')}></HeaderButton>
+          <HeaderButton text='Ether wrapper' onClick={() => props.setPageState('Ether wrapper')}></HeaderButton>
           <HeaderButton text='Liquidity pools'></HeaderButton>
         </div>
         <div className='header-right'>
@@ -36,7 +36,7 @@ function Title() {
 
 function HeaderButton(props) {
   return (
-    <button className="header-button">{props.text}</button>
+    <button className="header-button" onClick={props.onClick}>{props.text}</button>
   )
 }
 
@@ -174,15 +174,27 @@ function WalletDataEntry(props) {
   )
 }
 
-function InputBox() {
-  return (
-    <div className="input-box">
-      <InputEntry text='WETH'/>
-      <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90}/>
-      <InputEntry text='LDX'/>
-      <ConfirmButton text='Swap'/>
-    </div>
-  );
+function InputBox(props) {
+  if (props.pageState === 'Swap') {
+    return (
+      <div className="input-box">
+        <InputEntry text={props.invertedInputs ? 'LDX' : 'WETH'}/>
+        <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
+        <InputEntry text={props.invertedInputs ? 'WETH' : 'LDX'}/>
+        <ConfirmButton text='Swap'/>
+      </div>
+    )
+  }
+  if (props.pageState === "Ether wrapper") {
+    return (
+      <div className="input-box">
+        <InputEntry text={props.invertedInputs ? 'WETH' : 'ETH'}/>
+        <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
+        <InputEntry text={props.invertedInputs ? 'ETH' : 'WETH'}/>
+        <ConfirmButton text={props.invertedInputs ? 'Unwrap' : 'Wrap'}/>
+      </div>
+    )
+  }
 }
 
 function InputEntry(props) {
@@ -213,11 +225,18 @@ function ConfirmButton(props) {
 }
 
 function MainContent(props) {
-  if (props.state === 'Swap') {
+  const [invertedInputs, setInvertedInputs] = useState(false);
+
+  if (props.pageState === 'Swap' || props.pageState === 'Ether wrapper') {
     return (
-      <main className="App-main">
-        <InputBox/>
-      </main>
+      <div className="App-main">
+        <InputBox pageState={props.pageState} invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs}/>
+      </div>
+    )
+  }
+  if (props.state === 'Liquidity pools') {
+    return (
+      null
     )
   }
 }
@@ -228,8 +247,8 @@ function App() {
 
   return (
     <div className="App">
-      <AppHeader contracts={contracts} connectedAccount={connectedAccount} setConnectedAccount={setConnectedAccount}/>
-      <MainContent state={pageState}/>
+      <AppHeader contracts={contracts} connectedAccount={connectedAccount} setConnectedAccount={setConnectedAccount} setPageState={setPageState}/>
+      <MainContent pageState={pageState}/>
     </div>
   )
 }
