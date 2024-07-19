@@ -176,9 +176,9 @@ function InputBox(props) {
   if (props.pageState === 'Swap') {
     return (
       <div className="input-box">
-        <InputEntry text={props.invertedInputs ? 'LDX' : 'WETH'}/>
+        <InputEntry text={props.invertedInputs ? 'LDX' : 'WETH'} input={props.input1} setInput={props.setInput1}/>
         <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
-        <InputEntry text={props.invertedInputs ? 'WETH' : 'LDX'}/>
+        <InputEntry text={props.invertedInputs ? 'WETH' : 'LDX'}  input={props.input2} setInput={props.setInput2}/>
         <ConfirmButton text='Swap'/>
       </div>
     )
@@ -186,9 +186,9 @@ function InputBox(props) {
   if (props.pageState === "Ether wrapper") {
     return (
       <div className="input-box">
-        <InputEntry text={props.invertedInputs ? 'WETH' : 'ETH'}/>
+        <InputEntry text={props.invertedInputs ? 'WETH' : 'ETH'} input={props.input1} setInput={props.setInput1}/>
         <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
-        <InputEntry text={props.invertedInputs ? 'ETH' : 'WETH'}/>
+        <InputEntry text={props.invertedInputs ? 'ETH' : 'WETH'}  input={props.input2} setInput={props.setInput2}/>
         <ConfirmButton text={props.invertedInputs ? 'Unwrap' : 'Wrap'}/>
       </div>
     )
@@ -196,8 +196,8 @@ function InputBox(props) {
   if (props.pageState === "Add liquidity") {
     return (
       <div className="input-box">
-        <InputEntry text='WETH'/>
-        <InputEntry text='LDX'/>
+        <InputEntry text='WETH' input={props.input1} setInput={props.setInput1}/>
+        <InputEntry text='LDX'  input={props.input2} setInput={props.setInput2}/>
         <ConfirmButton text='Add liquidity'/>
       </div>
     )
@@ -205,8 +205,8 @@ function InputBox(props) {
   if (props.pageState === "Withdraw") {
     return (
       <div className="input-box">
-        <InputEntry text='WETH'/>
-        <InputEntry text='LDX'/>
+        <InputEntry text='WETH' input={props.input1} setInput={props.setInput1}/>
+        <InputEntry text='LDX'  input={props.input2} setInput={props.setInput2}/>
         <ConfirmButton text='Withdraw'/>
       </div>
     )
@@ -216,15 +216,19 @@ function InputBox(props) {
 function InputEntry(props) {
   return (
     <div className="input-group">
-      <TokenInput/>
+      <TokenInput input={props.input} setInput={props.setInput}/>
       <TokenLabel text={props.text}/>
     </div>
   )
 }
 
-function TokenInput() {
+function TokenInput(props) {
+  const handleChange = (event) => {
+    props.setInput(event.target.value);
+  };
+
   return (
-    <input type="text" placeholder="Enter amount" />
+    <input type="text" placeholder="Enter amount" value={props.input} onChange={handleChange}></input>
   )
 }
 
@@ -279,11 +283,18 @@ function LiquidityPool(props) {
 
 function MainContent(props) {
   const [invertedInputs, setInvertedInputs] = useState(false);
+  const [input1, setInput1] = useState('');
+  const [input2, setInput2] = useState('');
+  useEffect(() => {
+    setInvertedInputs(false);
+    setInput1('');
+    setInput2('');
+  }, [props.pageState]);
 
   if (props.pageState === 'Swap' || props.pageState === 'Ether wrapper' || props.pageState === 'Add liquidity' || props.pageState === 'Withdraw') {
     return (
       <div className="App-main">
-        <InputBox pageState={props.pageState} invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs}/>
+        <InputBox pageState={props.pageState} invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
       </div>
     )
   }
