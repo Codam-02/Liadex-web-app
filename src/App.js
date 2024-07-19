@@ -21,7 +21,7 @@ function AppHeader(props) {
           <HeaderButton text='Liquidity pools' onClick={() => props.setPageState('Liquidity pools')}></HeaderButton>
         </div>
         <div className='header-right'>
-          <WalletSection contracts={props.contracts} connectedAccount={props.connectedAccount} setConnectedAccount={props.setConnectedAccount}/>
+          <WalletSection contracts={props.contracts} connectedAccount={props.connectedAccount} setConnectedAccount={props.setConnectedAccount} setWethLiquidity={props.setWethLiquidity} setLdxLiquidity={props.setLdxLiquidity}/>
         </div>
       </div>
     </header>
@@ -47,7 +47,7 @@ function WalletSection(props) {
 
   if (props.connectedAccount === null) {
     return (
-      <WalletButton contracts={props.contracts} connectedAccount={props.connectedAccount} setConnectedAccount={props.setConnectedAccount} setEthBalance={setEthBalance} setWethBalance={setWethBalance} setLdxBalance={setLdxBalance}/>
+      <WalletButton contracts={props.contracts} connectedAccount={props.connectedAccount} setConnectedAccount={props.setConnectedAccount} setEthBalance={setEthBalance} setWethBalance={setWethBalance} setLdxBalance={setLdxBalance} setWethLiquidity={props.setWethLiquidity} setLdxLiquidity={props.setLdxLiquidity}/>
     )
   }
   return (
@@ -58,7 +58,7 @@ function WalletSection(props) {
 function WalletButton(props) {
   const wrapperContract = props.contracts.wrapperContract;
   const liadexContract = props.contracts.liadexContract;
-  //const tradingPairContract = props.contracts.tradingPairContract;
+  const tradingPairContract = props.contracts.tradingPairContract;
 
   async function connectWallet() {
     if (window.ethereum) {
@@ -113,7 +113,7 @@ function WalletButton(props) {
         
         const wethContract = new ethers.Contract(wrapperContract.address, wrapperContract.abi, provider);
         const ldxContract = new ethers.Contract(liadexContract.address, liadexContract.abi, provider);
-
+        const tradingPair = new ethers.Contract(tradingPairContract.address, tradingPairContract.abi, provider)
 
         const wethBalance_ = await wethContract.balanceOf(signerAddress);
         const formattedWethBalance = parseFloat(ethers.formatEther(wethBalance_)).toFixed(4);
@@ -127,17 +127,15 @@ function WalletButton(props) {
         const formattedLdxBalance = parseFloat(ethers.formatEther(ldxBalance_)).toFixed(4);
         props.setLdxBalance(formattedLdxBalance);
 
-        /*
         const liquidityTokenBalance = await tradingPair.balanceOf(signerAddress);
         const liquidityTokenSupply = await tradingPair.totalSupply();
         const [reserveA, reserveB] = await tradingPair.getReserves();
         const tokenAProvided = ((liquidityTokenBalance * reserveA) / liquidityTokenSupply);
         const tokenBProvided = ((liquidityTokenBalance * reserveB) / liquidityTokenSupply);
-        const formattedTokenAProvided = parseFloat(ethers.formatEther(tokenAProvided)).toFixed(4);
-        const formattedTokenBProvided = parseFloat(ethers.formatEther(tokenBProvided)).toFixed(4);
-        props.positionHook1(formattedTokenAProvided > 0.0001 ? formattedTokenAProvided - 0.0001 : formattedTokenAProvided);
-        props.positionHook2(formattedTokenBProvided > 0.0001 ? formattedTokenBProvided - 0.0001 : formattedTokenBProvided);
-        */
+        const formattedTokenAProvided = parseFloat(ethers.formatEther(tokenAProvided));
+        const formattedTokenBProvided = parseFloat(ethers.formatEther(tokenBProvided));
+        props.setWethLiquidity(formattedTokenAProvided > 0.0001 ? (formattedTokenAProvided - 0.0001).toFixed(4) : formattedTokenAProvided.toFixed(4));
+        props.setLdxLiquidity(formattedTokenBProvided > 0.0001 ? (formattedTokenBProvided - 0.0001).toFixed(4) : formattedTokenBProvided.toFixed(4));
 
         // Get the user's account
         const address = await signer.getAddress();
@@ -195,6 +193,24 @@ function InputBox(props) {
       </div>
     )
   }
+  if (props.pageState === "Add liquidity") {
+    return (
+      <div className="input-box">
+        <InputEntry text='WETH'/>
+        <InputEntry text='LDX'/>
+        <ConfirmButton text='Add liquidity'/>
+      </div>
+    )
+  }
+  if (props.pageState === "Withdraw") {
+    return (
+      <div className="input-box">
+        <InputEntry text='WETH'/>
+        <InputEntry text='LDX'/>
+        <ConfirmButton text='Withdraw'/>
+      </div>
+    )
+  }
 }
 
 function InputEntry(props) {
@@ -228,7 +244,7 @@ function TokenAddressEntry(props) {
   return (
     <div className='token-address-entry-container'>
       <button className='token-address-entry'>{props.text}</button>
-      <p className='token-address-entry-liquidity'>Your liquidity: 0.000</p>
+      <p className='token-address-entry-liquidity'>Your liquidity: {props.liquidity}</p>
     </div>
   )
 }
@@ -241,7 +257,7 @@ function LiquidityPoolEntry(props) {
 
 function LiquidityPoolButton(props) {
   return (
-    <button className='liquidity-pool-button'>{props.text}</button>
+    <button className='liquidity-pool-button' onClick={props.onClick}>{props.text}</button>
   )
 }
 
@@ -250,12 +266,12 @@ function LiquidityPool(props) {
     <div className='liquidity-pool'>
       <div className='liquidity-pool-entries'>
         <LiquidityPoolEntry text='WETH-LDX'/>
-        <TokenAddressEntry text='WETH'/>
-        <TokenAddressEntry text='LDX'/>
+        <TokenAddressEntry text='WETH' liquidity={props.wethLiquidity}/>
+        <TokenAddressEntry text='LDX' liquidity={props.ldxLiquidity}/>
       </div>
       <div className='liquidity-pool-buttons'>
-        <LiquidityPoolButton text='Add liquidity'/>
-        <LiquidityPoolButton text='Withdraw'/>
+        <LiquidityPoolButton text='Add liquidity' onClick={() => props.setPageState('Add liquidity')}/>
+        <LiquidityPoolButton text='Withdraw' onClick={() => props.setPageState('Withdraw')}/>
       </div>
     </div>
   )
@@ -264,7 +280,7 @@ function LiquidityPool(props) {
 function MainContent(props) {
   const [invertedInputs, setInvertedInputs] = useState(false);
 
-  if (props.pageState === 'Swap' || props.pageState === 'Ether wrapper') {
+  if (props.pageState === 'Swap' || props.pageState === 'Ether wrapper' || props.pageState === 'Add liquidity' || props.pageState === 'Withdraw') {
     return (
       <div className="App-main">
         <InputBox pageState={props.pageState} invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs}/>
@@ -274,7 +290,7 @@ function MainContent(props) {
   if (props.pageState === 'Liquidity pools') {
     return (
       <div className="App-main">
-        <LiquidityPool contracts={props.contracts}/>
+        <LiquidityPool contracts={props.contracts} setPageState={props.setPageState} wethLiquidity={props.wethLiquidity} ldxLiquidity={props.ldxLiquidity}/>
       </div>
     )
   }
@@ -283,11 +299,13 @@ function MainContent(props) {
 function App() {
   const [pageState, setPageState] = useState('Swap');
   const [connectedAccount, setConnectedAccount] = useState(null);
+  const [wethLiquidity, setWethLiquidity] = useState(null);
+  const [ldxLiquidity, setLdxLiquidity] = useState(null);
 
   return (
     <div className="App">
-      <AppHeader contracts={contracts} connectedAccount={connectedAccount} setConnectedAccount={setConnectedAccount} setPageState={setPageState}/>
-      <MainContent contracts={contracts} pageState={pageState}/>
+      <AppHeader contracts={contracts} connectedAccount={connectedAccount} setConnectedAccount={setConnectedAccount} setPageState={setPageState} setWethLiquidity={setWethLiquidity} setLdxLiquidity={setLdxLiquidity}/>
+      <MainContent contracts={contracts} pageState={pageState} setPageState={setPageState} wethLiquidity={wethLiquidity} ldxLiquidity={ldxLiquidity}/>
     </div>
   )
 }
