@@ -226,22 +226,37 @@ function ConfirmButton(props) {
 
 function TokenAddressEntry(props) {
   return (
-    <button className='token-address-entry'>{props.address}</button>
+    <div className='token-address-entry-container'>
+      <button className='token-address-entry'>{props.text}</button>
+      <p className='token-address-entry-liquidity'>Your liquidity: 0.000</p>
+    </div>
   )
 }
 
-function ContractAddressEntry(props) {
+function LiquidityPoolEntry(props) {
   return (
-    <button className='contract-address-entry'>{props.address}</button>
+    <button className='liquidity-pool-entry'>{props.text}</button>
+  )
+}
+
+function LiquidityPoolButton(props) {
+  return (
+    <button className='liquidity-pool-button'>{props.text}</button>
   )
 }
 
 function LiquidityPool(props) {
   return (
     <div className='liquidity-pool'>
-      <ContractAddressEntry address={props.contracts.tradingPairContract.address}/>
-      <TokenAddressEntry address={props.contracts.wrapperContract.address}/>
-      <TokenAddressEntry address={props.contracts.liadexContract.address}/>
+      <div className='liquidity-pool-entries'>
+        <LiquidityPoolEntry text='WETH-LDX'/>
+        <TokenAddressEntry text='WETH'/>
+        <TokenAddressEntry text='LDX'/>
+      </div>
+      <div className='liquidity-pool-buttons'>
+        <LiquidityPoolButton text='Add liquidity'/>
+        <LiquidityPoolButton text='Withdraw'/>
+      </div>
     </div>
   )
 }

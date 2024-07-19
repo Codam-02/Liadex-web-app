@@ -118,7 +118,6 @@ body {
   width: fit-content;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   gap: 15px;
 }
 
@@ -135,11 +134,10 @@ body {
   font-size: 20px;
   border: none;
   border-radius: 8px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   outline: none;
   color: #000000;
   background-color: #E5E5E5;
-  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .input-group input:focus {
@@ -164,15 +162,13 @@ body {
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 8px;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
   font-size: 23px;
   margin-top: 30px;
 }
 
 .confirm-button:hover {
   background-color: #444A58;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .invert-icon {
@@ -185,44 +181,89 @@ body {
   color: #444A58;
 }
 
-.contract-address-entry {
+.liquidity-pool-entry {
   font-family: 'Montserrat', sans-serif;
-  background-color: #FCA311;
-  color: #000000;
-  padding: 9px;
+  background-color: #14213D;
+  color: #FFFFFF;
+  padding: 15px 10px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 18px;
   width: fit-content;
+  background-color: 0.3s ease;
+  height: fit-content;
 }
 
-.contract-address-entry:hover {
-  background-color: #F1C47B;
+.liquidity-pool-entry:hover {
+  background-color: #444A58;
 }
 
 .token-address-entry {
   font-family: 'Montserrat', sans-serif;
   background-color: #14213D;
   color: #FFFFFF;
-  padding: 9px;
+  padding: 10px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 18px;
   width: fit-content;
+  background-color: 0.3s ease;
+  height: fit-content;
 }
 
 .token-address-entry:hover {
   background-color: #444A58;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.token-address-entry-container {
+  width: 150px;
+  align-items: center;
+}
+
+.token-address-entry-liquidity {
+  font-family: 'Montserrat', sans-serif;
+  color: #FFFFFF;
+  font-size: 20px;
 }
 
 .liquidity-pool {
-  display: flex;
   margin-top: 100px;
-  padding-left: 25px;
-  padding-right: 25px;
-  padding-top: 35px;
-  padding-bottom: 25px;
+  padding: 10px;
   background-color: #737373;
   border-radius: 12px;
-  width: 800px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  gap: 20px;
+  align-items: center;
+}
+
+.liquidity-pool-entries {
+  display: flex;
+  padding: 25px;
+  background-color: #737373;
+  border-radius: 12px;
+  width: fit-content;
+  gap: 60px;
+  align-items: center;
+}
+
+.liquidity-pool-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 70px;
+  margin-bottom: 20px;
+}
+
+.liquidity-pool-button {
+  background-color: #FCA311;
+  font-size: 18px;
+  color: #000000;
+  font-family: 'Montserrat', sans-serif;
+  padding: 10px;
+  border-radius: 6px;
+  width: fit-content;
+  background-color: 0.3s ease;
+  height: fit-content;
+}
+
+.liquidity-pool-button:hover {
+  background-color: #F1C47B;
 }
