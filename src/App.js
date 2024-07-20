@@ -291,6 +291,11 @@ function MainContent(props) {
     setInput2('');
   }, [props.pageState]);
 
+  useEffect(() => {
+    setInput1('');
+    setInput2('');
+  }, [props.invertedInputs]);
+
   if (props.pageState === 'Swap' || props.pageState === 'Ether wrapper' || props.pageState === 'Add liquidity' || props.pageState === 'Withdraw') {
     return (
       <div className="App-main">
