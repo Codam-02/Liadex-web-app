@@ -172,25 +172,74 @@ function WalletDataEntry(props) {
 }
 
 function SwapBox(props) {
-  const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
+  const {invertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
   async function getExpectedTokenAReceived(tokenBAmount) {
-    const provider = ethers.BrowserProvider(window.ethereum);
-    const tradingPairContract = ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
     return reserveA - ((reserveA * reserveB) / (reserveB + tokenBAmount));
   }
+  async function getExpectedTokenBReceived(tokenAAmount) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    const [reserveA, reserveB] = await tradingPairContract.getReserves();
+    return reserveB - ((reserveA * reserveB) / (reserveA + tokenAAmount));
+  }
+  async function getExpectedTokenAGiven(tokenBAmount) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    const [reserveA, reserveB] = await tradingPairContract.getReserves();
+    return ((reserveA * reserveB) / (reserveB - tokenBAmount)) - reserveA;
+  }
+  async function getExpectedTokenBGiven(tokenAAmount) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    const [reserveA, reserveB] = await tradingPairContract.getReserves();
+    return ((reserveA * reserveB) / (reserveA - tokenAAmount)) - reserveB;
+  }
 
-  useEffect(async () => {
-    if (invertedInputs) {
-      setInput2(await getExpectedTokenAReceived(BigInt(input1) * 1000000000000000000n))
+  useEffect(() => {
+    async function update() {
+      if (input1 === '' || input1 === '.') {
+        setInput1('');
+        setInput2('');
+      } else {
+        let res;
+          res = await (invertedInputs ? getExpectedTokenAReceived(ethers.parseUnits(input1, 18)) : getExpectedTokenBReceived(ethers.parseUnits(input1, 18)));
+          const formattedRes = ethers.formatUnits(res, 18);
+          if (formattedRes !== input2) {
+            setInput2(formattedRes);
+          }
+      }
     }
-  }, [input1, setInput2]);
+    update();
+  }, [input1]);
+  useEffect(() => {
+    async function update() {
+      if (input2 === ''  || input2 === '.') {
+        setInput1('');
+        setInput2('');
+      } else {
+        let res;
+          res = await (invertedInputs ? getExpectedTokenBGiven(ethers.parseUnits(input2, 18)) : getExpectedTokenAGiven(ethers.parseUnits(input2, 18)));
+          const formattedRes = ethers.formatUnits(res, 18);
+          if (formattedRes !== input1) {
+            setInput1(formattedRes);
+          }
+      }
+    }
+    update();
+  }, [input2]);
+  useEffect(() => {
+    setInput1('');
+    setInput2('');
+  }, [invertedInputs]);
 
   return (
     <div className="input-box">
-      <InputEntry text={props.invertedInputs ? 'LDX' : 'WETH'} input={props.input1} setInput={props.setInput1}/>
+      <InputEntry text={invertedInputs ? 'LDX' : 'WETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
-      <InputEntry text={props.invertedInputs ? 'WETH' : 'LDX'}  input={props.input2} setInput={props.setInput2}/>
+      <InputEntry text={invertedInputs ? 'WETH' : 'LDX'}  input={input2} setInput={setInput2}/>
       <ConfirmButton text='Swap'/>
     </div>
   )
@@ -220,10 +269,55 @@ function WrapperBox(props) {
 }
 
 function AddLiquidityBox(props) {
+  const {input1, input2, setInput1, setInput2, contracts} = props;
+  async function getEquivalentTokenA(tokenBAmount) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    return tradingPairContract.calculateTokenAEquivalent(tokenBAmount);
+  }
+  async function getEquivalentTokenB(tokenAAmount) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    return tradingPairContract.calculateTokenBEquivalent(tokenAAmount);
+  }
+  
+  useEffect(() => {
+    async function update() {
+      if (input1 === '' || input1 === '.') {
+        setInput1('');
+        setInput2('');
+      } else {
+        let res;
+          res = await getEquivalentTokenB(ethers.parseEther(input1, 18));
+          const formattedRes = ethers.formatUnits(res, 18);
+          if (formattedRes !== input2) {
+            setInput2(formattedRes);
+          }
+      }
+    }
+    update();
+  }, [input1]);
+  useEffect(() => {
+    async function update() {
+      if (input2 === '' || input2 === '.') {
+        setInput1('');
+        setInput2('');
+      } else {
+        let res;
+          res = await getEquivalentTokenA(ethers.parseEther(input2, 18));
+          const formattedRes = ethers.formatUnits(res, 18);
+          if (formattedRes !== input1) {
+            setInput1(formattedRes);
+          }
+      }
+    }
+    update();
+  }, [input2]);
+
   return (
       <div className="input-box">
-        <InputEntry text='WETH' input={props.input1} setInput={props.setInput1}/>
-        <InputEntry text='LDX'  input={props.input2} setInput={props.setInput2}/>
+        <InputEntry text='WETH' input={input1} setInput={setInput1}/>
+        <InputEntry text='LDX'  input={input2} setInput={setInput2}/>
         <ConfirmButton text='Add liquidity'/>
       </div>
     )
@@ -326,7 +420,7 @@ function MainContent(props) {
   if (props.pageState === 'Swap') {
     return (
       <div className='App-main'>
-        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts}/>
+        <SwapBox invertedInputs={invertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts}/>
       </div>
     )
   }
@@ -340,7 +434,7 @@ function MainContent(props) {
   if (props.pageState === "Add liquidity") {
     return (
       <div className='App-main'>
-        <AddLiquidityBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
+        <AddLiquidityBox input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={contracts}/>
       </div>
     )
   }
