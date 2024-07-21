@@ -187,10 +187,14 @@ function WrapperBox(props) {
   const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2} = props;
   useEffect(() => {
     setInput2(input1);
-  }, [input1]);
+  }, [input1, setInput2]);
   useEffect(() => {
     setInput1(input2);
-  }, [input2]);
+  }, [input2, setInput1]);
+  useEffect(() => {
+    setInput1('');
+    setInput2('');
+  }, [invertedInputs, setInput1, setInput2]);
 
   return (
     <div className="input-box">
@@ -233,8 +237,14 @@ function InputEntry(props) {
 
 function TokenInput(props) {
   const handleChange = (event) => {
-    props.setInput(event.target.value);
-  };
+    const { value } = event.target;
+  
+    const regex = /^[0-9]*[.,]?[0-9]*$/;
+  
+    if (regex.test(value)) {
+      const sanitizedValue = value.replace(',', '.');
+      props.setInput(sanitizedValue);
+    }  };
 
   return (
     <input type="text" placeholder="Enter amount" value={props.input} onChange={handleChange}></input>
@@ -299,11 +309,6 @@ function MainContent(props) {
     setInput1('');
     setInput2('');
   }, [props.pageState]);
-
-  useEffect(() => {
-    setInput1('');
-    setInput2('');
-  }, [props.invertedInputs]);
 
   if (props.pageState === 'Swap') {
     return (
