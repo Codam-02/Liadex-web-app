@@ -142,7 +142,6 @@ function WalletButton(props) {
         props.setConnectedAccount(address);
   
         console.log('Connected account:', address);
-        props.walletHook();
       } catch (error) {
         console.error('Error connecting to MetaMask:', error);
       }
@@ -173,7 +172,19 @@ function WalletDataEntry(props) {
 }
 
 function SwapBox(props) {
-  const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2} = props;
+  const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
+  async function getExpectedTokenAReceived(tokenBAmount) {
+    const provider = ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    const [reserveA, reserveB] = await tradingPairContract.getReserves();
+    return reserveA - ((reserveA * reserveB) / (reserveB + tokenBAmount));
+  }
+
+  useEffect(async () => {
+    if (invertedInputs) {
+      setInput2(await getExpectedTokenAReceived(BigInt(input1) * 1000000000000000000n))
+    }
+  }, [input1, setInput2]);
 
   return (
     <div className="input-box">
@@ -315,7 +326,7 @@ function MainContent(props) {
   if (props.pageState === 'Swap') {
     return (
       <div className='App-main'>
-        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
+        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts}/>
       </div>
     )
   }
