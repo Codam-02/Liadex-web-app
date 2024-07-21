@@ -173,6 +173,8 @@ function WalletDataEntry(props) {
 }
 
 function SwapBox(props) {
+  const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2} = props;
+
   return (
     <div className="input-box">
       <InputEntry text={props.invertedInputs ? 'LDX' : 'WETH'} input={props.input1} setInput={props.setInput1}/>
@@ -313,7 +315,7 @@ function MainContent(props) {
   if (props.pageState === 'Swap') {
     return (
       <div className='App-main'>
-        <SwapBox pageState={props.pageState} invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
+        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
       </div>
     )
   }
@@ -327,14 +329,14 @@ function MainContent(props) {
   if (props.pageState === "Add liquidity") {
     return (
       <div className='App-main'>
-        <AddLiquidityBox pageState={props.pageState} invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
+        <AddLiquidityBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
       </div>
     )
   }
   if (props.pageState === "Withdraw") {
     return (
       <div className='App-main'>
-        <WithdrawBox pageState={props.pageState} invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
+        <WithdrawBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
       </div>
     )
   }
