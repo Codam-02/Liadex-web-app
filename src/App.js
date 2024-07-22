@@ -271,7 +271,46 @@ function SwapBox(props) {
 }
 
 function WrapperBox(props) {
-  const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2} = props;
+  const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
+  async function wrap() {
+    try {  
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+  
+      const valueInWei = ethers.parseUnits(input1, 18);
+  
+      const tx = {
+        to: contracts.wrapperContract.address,
+        value: valueInWei
+      };
+  
+      const transactionResponse = await signer.sendTransaction(tx);
+      await transactionResponse.wait();
+  
+      console.log('Transaction successful:', transactionResponse);
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+    }
+  }
+  async function unwrap() {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const input1InWei = ethers.parseUnits(input1, 18);
+
+      const wrapperContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, signer);
+
+      let transactionResponse;
+      transactionResponse = await wrapperContract.unwrap(input1InWei);
+      await transactionResponse.wait();
+
+      console.log('Transaction successful:', transactionResponse);
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+    }
+  }
+
   useEffect(() => {
     setInput2(input1);
   }, [input1, setInput2]);
@@ -288,7 +327,7 @@ function WrapperBox(props) {
       <InputEntry text={invertedInputs ? 'WETH' : 'ETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => setInvertedInputs(!invertedInputs)}/>
       <InputEntry text={invertedInputs ? 'ETH' : 'WETH'}  input={input2} setInput={setInput2}/>
-      <ConfirmButton text={invertedInputs ? 'Unwrap' : 'Wrap'}/>
+      <ConfirmButton text={invertedInputs ? 'Unwrap' : 'Wrap'} onClick={invertedInputs ? unwrap : wrap}/>
     </div>
   )
 }
@@ -543,7 +582,7 @@ function MainContent(props) {
   if (props.pageState === "Ether wrapper") {
     return (
       <div className='App-main'>
-        <WrapperBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
+        <WrapperBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={contracts}/>
       </div>
     )
   }
