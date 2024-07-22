@@ -1,5 +1,5 @@
 import './App.css'
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faRightLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -197,6 +197,31 @@ function SwapBox(props) {
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
     return ((reserveA * reserveB) / (reserveA - tokenAAmount)) - reserveB;
   }
+  async function swap() {
+    try {
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const valueInWei = ethers.parseUnits(input1, 18);
+
+      const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, signer);
+
+      let transactionResponse;
+      if (invertedInputs) {
+        transactionResponse = await tradingPairContract.swap(0, valueInWei);
+        await transactionResponse.wait();
+      }
+      else {
+        transactionResponse = await tradingPairContract.swap(valueInWei, 0);
+        await transactionResponse.wait();
+      }
+
+      console.log('Transaction successful:', transactionResponse);
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+    }
+  }
 
   useEffect(() => {
     async function update() {
@@ -240,7 +265,7 @@ function SwapBox(props) {
       <InputEntry text={invertedInputs ? 'LDX' : 'WETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
       <InputEntry text={invertedInputs ? 'WETH' : 'LDX'}  input={input2} setInput={setInput2}/>
-      <ConfirmButton text='Swap'/>
+      <ConfirmButton text='Swap' onClick={swap}/>
     </div>
   )
 }
@@ -284,7 +309,26 @@ function AddLiquidityBox(props) {
     const res = ((tokenAAmount) * (reserveB) / (reserveA));
     return res;
   }
-  
+  async function addLiquidity() {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const input1InWei = ethers.parseUnits(input1, 18);
+      const input2InWei = ethers.parseUnits(input2, 18);
+
+      const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, signer);
+
+      let transactionResponse;
+      transactionResponse = await tradingPairContract.addLiquidity(input1InWei, input2InWei);
+      await transactionResponse.wait();
+
+      console.log('Transaction successful:', transactionResponse);
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+    }
+  }
+
   useEffect(() => {
     async function update() {
       if (input1 === '' || input1 === '.') {
@@ -322,7 +366,7 @@ function AddLiquidityBox(props) {
       <div className="input-box">
         <InputEntry text='WETH' input={input1} setInput={setInput1}/>
         <InputEntry text='LDX'  input={input2} setInput={setInput2}/>
-        <ConfirmButton text='Add liquidity'/>
+        <ConfirmButton text='Add liquidity' onClick={addLiquidity}/>
       </div>
     )
 }
@@ -343,6 +387,25 @@ function WithdrawBox(props) {
     const res = ((tokenAAmount) * (reserveB) / (reserveA));
     return res;
   }
+  async function withdraw() {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const input1InWei = ethers.parseUnits(input1, 18);
+      const input2InWei = ethers.parseUnits(input2, 18);
+
+      const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, signer);
+
+      let transactionResponse;
+      transactionResponse = await tradingPairContract.withdraw(input1InWei, input2InWei);
+      await transactionResponse.wait();
+
+      console.log('Transaction successful:', transactionResponse);
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+    }
+  }
   
   useEffect(() => {
     async function update() {
@@ -381,7 +444,7 @@ function WithdrawBox(props) {
       <div className="input-box">
         <InputEntry text='WETH' input={input1} setInput={setInput1}/>
         <InputEntry text='LDX'  input={input2} setInput={setInput2}/>
-        <ConfirmButton text='Withdraw'/>
+        <ConfirmButton text='Withdraw' onClick={withdraw}/>
       </div>
     )
 }
@@ -419,7 +482,7 @@ function TokenLabel(props) {
 
 function ConfirmButton(props) {
   return (
-    <button className="confirm-button">{props.text}</button>
+    <button className="confirm-button" onClick={props.onClick}>{props.text}</button>
   )
 }
 
