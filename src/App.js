@@ -1,5 +1,5 @@
 import './App.css'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faRightLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -207,7 +207,7 @@ function SwapBox(props) {
         let res;
           res = await (invertedInputs ? getExpectedTokenAReceived(ethers.parseUnits(input1, 18)) : getExpectedTokenBReceived(ethers.parseUnits(input1, 18)));
           const formattedRes = ethers.formatUnits(res, 18);
-          if (formattedRes !== input2) {
+          if (parseFloat(formattedRes) !== parseFloat(input2)) {
             setInput2(formattedRes);
           }
       }
@@ -223,7 +223,7 @@ function SwapBox(props) {
         let res;
           res = await (invertedInputs ? getExpectedTokenBGiven(ethers.parseUnits(input2, 18)) : getExpectedTokenAGiven(ethers.parseUnits(input2, 18)));
           const formattedRes = ethers.formatUnits(res, 18);
-          if (formattedRes !== input1) {
+          if (parseFloat(formattedRes) !== parseFloat(input1)) {
             setInput1(formattedRes);
           }
       }
@@ -273,12 +273,16 @@ function AddLiquidityBox(props) {
   async function getEquivalentTokenA(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
-    return tradingPairContract.calculateTokenAEquivalent(tokenBAmount);
+    const [reserveA, reserveB] = await tradingPairContract.getReserves();
+    const res = ((tokenBAmount) * (reserveA) / (reserveB));
+    return res;
   }
   async function getEquivalentTokenB(tokenAAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
-    return tradingPairContract.calculateTokenBEquivalent(tokenAAmount);
+    const [reserveA, reserveB] = await tradingPairContract.getReserves();
+    const res = ((tokenAAmount) * (reserveB) / (reserveA));
+    return res;
   }
   
   useEffect(() => {
@@ -288,11 +292,11 @@ function AddLiquidityBox(props) {
         setInput2('');
       } else {
         let res;
-          res = await getEquivalentTokenB(ethers.parseEther(input1, 18));
-          const formattedRes = ethers.formatUnits(res, 18);
-          if (formattedRes !== input2) {
-            setInput2(formattedRes);
-          }
+        res = (await getEquivalentTokenB(ethers.parseUnits(input1, 18)));
+        const formattedRes = ethers.formatUnits(res, 18);
+        if (Math.abs(parseFloat(formattedRes) - parseFloat(input2)) > 0.00001 || input2 === '') {
+          setInput2(formattedRes);
+        }
       }
     }
     update();
@@ -304,11 +308,11 @@ function AddLiquidityBox(props) {
         setInput2('');
       } else {
         let res;
-          res = await getEquivalentTokenA(ethers.parseEther(input2, 18));
-          const formattedRes = ethers.formatUnits(res, 18);
-          if (formattedRes !== input1) {
-            setInput1(formattedRes);
-          }
+        res = (await getEquivalentTokenA(ethers.parseUnits(input2, 18)));
+        const formattedRes = ethers.formatUnits(res, 18);
+        if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.000000000000001 || input1 === '') {
+          setInput1(formattedRes);
+        }
       }
     }
     update();
@@ -324,10 +328,59 @@ function AddLiquidityBox(props) {
 }
 
 function WithdrawBox(props) {
+  const {input1, input2, setInput1, setInput2, contracts} = props;
+  async function getEquivalentTokenA(tokenBAmount) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    const [reserveA, reserveB] = await tradingPairContract.getReserves();
+    const res = ((tokenBAmount) * (reserveA) / (reserveB));
+    return res;
+  }
+  async function getEquivalentTokenB(tokenAAmount) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+    const [reserveA, reserveB] = await tradingPairContract.getReserves();
+    const res = ((tokenAAmount) * (reserveB) / (reserveA));
+    return res;
+  }
+  
+  useEffect(() => {
+    async function update() {
+      if (input1 === '' || input1 === '.') {
+        setInput1('');
+        setInput2('');
+      } else {
+        let res;
+        res = (await getEquivalentTokenB(ethers.parseUnits(input1, 18)));
+        const formattedRes = ethers.formatUnits(res, 18);
+        if (Math.abs(parseFloat(formattedRes) - parseFloat(input2)) > 0.00001 || input2 === '') {
+          setInput2(formattedRes);
+        }
+      }
+    }
+    update();
+  }, [input1]);
+  useEffect(() => {
+    async function update() {
+      if (input2 === '' || input2 === '.') {
+        setInput1('');
+        setInput2('');
+      } else {
+        let res;
+        res = (await getEquivalentTokenA(ethers.parseUnits(input2, 18)));
+        const formattedRes = ethers.formatUnits(res, 18);
+        if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.000000000000001 || input1 === '') {
+          setInput1(formattedRes);
+        }
+      }
+    }
+    update();
+  }, [input2]);
+
   return (
       <div className="input-box">
-        <InputEntry text='WETH' input={props.input1} setInput={props.setInput1}/>
-        <InputEntry text='LDX'  input={props.input2} setInput={props.setInput2}/>
+        <InputEntry text='WETH' input={input1} setInput={setInput1}/>
+        <InputEntry text='LDX'  input={input2} setInput={setInput2}/>
         <ConfirmButton text='Withdraw'/>
       </div>
     )
@@ -420,7 +473,7 @@ function MainContent(props) {
   if (props.pageState === 'Swap') {
     return (
       <div className='App-main'>
-        <SwapBox invertedInputs={invertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts}/>
+        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts}/>
       </div>
     )
   }
@@ -441,7 +494,7 @@ function MainContent(props) {
   if (props.pageState === "Withdraw") {
     return (
       <div className='App-main'>
-        <WithdrawBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2}/>
+        <WithdrawBox input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={contracts}/>
       </div>
     )
   }
