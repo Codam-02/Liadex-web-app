@@ -1,251 +1,269 @@
-.header {
+body {
+  margin: 0;
+  background-color: #E5E5E5;
+}
+
+.App {
+  text-align: center;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+}
+
+.App-header {
+  background-color: #000000;
+  padding: 10px 20px;
+  width: 100%;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  background-color: #1A403F;
-  color: #DCE1DE;
-  padding: 10px 0;
-  z-index: 1000;
 }
 
-.title {
-  padding-left: 8px;
-  font-size: 35px;
-}
-
-.logo { 
-  filter: brightness(1.5);
-  filter: contrast(0.9);
-  padding: 3px;
-  padding-left: 0px;
-}
-
-.header-container {
+.header-content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  padding-right: 20px;
   padding-left: 20px;
 }
 
-.header-container2 {
+.header-left {
   display: flex;
   align-items: center;
 }
 
+.header-left h1 {
+  color: #FFFFFF;
+  margin: 0;
+  padding-left: 10px;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-grow: 1;
+  margin-left: 310px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  margin-right: 27px;
+}
 
 .header-button {
   font-family: 'Montserrat', sans-serif;
-  background-color: #1A403F;
-  color: #DCE1DE;
-  padding: 10px 20px;
-  font-size: 19px;
+  background-color: #000000;
   border: none;
-  outline: none;
+  color: #FFFFFF;
+  padding: 8px 20px;
+  font-size: 17px;
   cursor: pointer;
-  transition: color 0.3s;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
 .header-button:hover {
-  background-color: #1A403F;
-  color: #477A66;
-}
-
-.first-button {
-  padding-left: 300px;
-}
-
-.second-button {
-  padding-left: 30px;
-}
-
-.page {
-  background-color: #477A66;
-  font-size: 25px;
-  min-height: 100vh;
-  color: #DCE1DE;
-  display: flex;
-  justify-content: center;
-  padding-top: 85px;
-}
-
-
-
-
-.swap-section {
-  display: flex;
-  flex-direction: column;
-  max-width: 300px;
-  background-color: #89cfb3;
-  padding: 26px;
-  height: fit-content;
-  border-radius: 10px;
-  max-height: fit-content;
-}
-
-.input-section {
-  padding-top: 5px;
-  padding-bottom: 7px;
-}
-
-.token-input {
-  display: flex;
-  width: 200px;
-  height: 60px;
-}
-
-.token-input input {
-  padding: 5px;
-  font-size: 17px;
-  font-weight: bold;
-  border-radius: 10px;
-  margin-right: 10px;
-  min-height: 70px;
-  border: none;
-  outline: none;
-  background-color: #E8E6E1;
-  color: #2D3933;
-}
-
-.token-input input::placeholder {
-  color: #CDCEBD;
-}
-
-.token-input input:first-child {
-  flex: 1;
-}
-
-
-
-
-.arrows-icon {
-  color: #1A403F;
-  transition: color 0.2s ease-in-out;
-}
-
-.arrows-icon:hover {
-  color: #477A66;
-}
-
-.confirm-button {
-  padding: 10px 20px;
-  background-color: #1A403F;
-  color: #DCE1DE;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  min-height: 62px;
-  font-size: 35px;
-  min-width: 300px;
-  position: relative;
-  overflow: hidden;
-}
-
-.confirm-button:hover {
-  background-color: #477A66;
-}
-
-.confirm-button-loading {
-  cursor: not-allowed;
-  pointer-events: none;
-  background-color: #1A403F; /* Ensure background color doesn't change on hover */
-}
-
-.confirm-button-loading::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -200%;
-  width: 300%; /* Make the gradient wider */
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: loadingAnimation 1s infinite;
-}
-
-@keyframes loadingAnimation {
-  0% {
-    left: -200%;
-  }
-  50% {
-    left: 100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-
-.wallet-container {
-  padding-left: 40px;
-  display: flex;
-  align-items: center;
+  color: #7D8391;
 }
 
 .wallet-button {
-  display: inline-block;
-  padding: 8px 3px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #DCE1DE;
-  background-color: #477A66;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #FCA311;
   border: none;
-  border-radius: 5px;
+  color: #000000;
+  padding: 6px 16px;
+  font-size: 18px;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  text-align: center;
-  text-decoration: none;
-}
-
-.wallet-button:hover {
-  background-color: #89cfb3;
-  color: #DCE1DE;
-}
-
-.weth {
-  padding-left: 20px;
-}
-
-.ethweth{
-  padding-left: 30px;
-  display: flex;
-}
-
-.liquidity-pool-bar {
-  background-color: #DCE1DE;
-  height: fit-content;
-  width: fit-content;
-  padding-left: 25px;
-  padding-right: 25px;
-  align-items: center;
-  margin-top: 0px;
-  border-radius: 10px;
-}
-
-.liquidity-pool-text {
-  color: #2D3933;
-  font-size: 20;
-}
-
-.liquidity-pool-button {
-  font-size: 15px;
-  padding: 8px;
-  background-color: #1A403F;
-  color: #DCE1DE;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  border-radius: 4px;
   transition: background-color 0.3s ease;
 }
 
-.liquidity-pool-button:hover {
-  background-color: #477A66;
+.wallet-button:hover {
+  background-color: #F1C47B;
 }
 
-.black {
-  color: #2D3933;
-}
-
-.special-font {
+.wallet-data {
   font-family: 'Montserrat', sans-serif;
+  padding: 0px;
+  align-items: center;
+  display: flex;
+  gap: 15px;
+}
+
+.wallet-data-entry {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #FCA311;
+    color: #000000;
+    padding: 9px;
+    border-radius: 6px;
+    font-size: 17px;
+    width: fit-content;
+}
+
+.App-main {
+  margin-top: 80px;
+}
+
+.input-box {
+  margin-top: 100px;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-top: 35px;
+  padding-bottom: 25px;
+  background-color: #737373;
+  border-radius: 12px;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.input-group input {
+  font-family: 'Montserrat', sans-serif;
+  flex-grow: 1;
+  padding: 10px;
+  font-size: 20px;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  color: #000000;
+  background-color: #E5E5E5;
+  transition: background-color 0.3s ease;
+}
+
+.input-group input:focus {
+  background-color: #FFFFFF;
+}
+
+.input-label {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #14213D;
+  color: #FFFFFF;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 50px;
+}
+
+.confirm-button {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #14213D;
+  border: none;
+  color: #FFFFFF;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  font-size: 23px;
+  margin-top: 30px;
+}
+
+.confirm-button:hover {
+  background-color: #444A58;
+}
+
+.invert-icon {
+  font-size: 20px;
+  margin-left: 280px;
+  color: #14213D;
+}
+
+.invert-icon:hover {
+  color: #444A58;
+}
+
+.liquidity-pool-entry {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #14213D;
+  color: #FFFFFF;
+  padding: 15px 10px;
+  border-radius: 6px;
+  font-size: 18px;
+  width: fit-content;
+  background-color: 0.3s ease;
+  height: fit-content;
+}
+
+.liquidity-pool-entry:hover {
+  background-color: #444A58;
+}
+
+.token-address-entry {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #14213D;
+  color: #FFFFFF;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 18px;
+  width: fit-content;
+  background-color: 0.3s ease;
+  height: fit-content;
+}
+
+.token-address-entry:hover {
+  background-color: #444A58;
+}
+
+.token-address-entry-container {
+  width: 150px;
+  align-items: center;
+}
+
+.token-address-entry-liquidity {
+  font-family: 'Montserrat', sans-serif;
+  color: #FFFFFF;
+  font-size: 20px;
+}
+
+.liquidity-pool {
+  margin-top: 100px;
+  padding: 10px;
+  background-color: #737373;
+  border-radius: 12px;
+  width: fit-content;
+  gap: 20px;
+  align-items: center;
+}
+
+.liquidity-pool-entries {
+  display: flex;
+  padding: 25px;
+  background-color: #737373;
+  border-radius: 12px;
+  width: fit-content;
+  gap: 60px;
+  align-items: center;
+}
+
+.liquidity-pool-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 70px;
+  margin-bottom: 20px;
+}
+
+.liquidity-pool-button {
+  background-color: #FCA311;
+  font-size: 18px;
+  color: #000000;
+  font-family: 'Montserrat', sans-serif;
+  padding: 10px;
+  border-radius: 6px;
+  width: fit-content;
+  background-color: 0.3s ease;
+  height: fit-content;
+}
+
+.liquidity-pool-button:hover {
+  background-color: #F1C47B;
 }
