@@ -197,6 +197,11 @@ function SwapBox(props) {
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
     return ((reserveA * reserveB) / (reserveA - tokenAAmount)) - reserveB;
   }
+  async function getTokenAllowances() {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+    const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
+  }
   async function swap() {
     try {
 
