@@ -199,6 +199,9 @@ function SwapBox(props) {
   }
   async function getTokenAllowances() {
     const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+
     const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
     const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
   }
