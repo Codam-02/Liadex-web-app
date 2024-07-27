@@ -130,8 +130,8 @@ function WalletButton(props) {
         const liquidityTokenBalance = await tradingPair.balanceOf(signerAddress);
         const liquidityTokenSupply = await tradingPair.totalSupply();
         const [reserveA, reserveB] = await tradingPair.getReserves();
-        const tokenAProvided = ((liquidityTokenBalance * reserveA) / liquidityTokenSupply);
-        const tokenBProvided = ((liquidityTokenBalance * reserveB) / liquidityTokenSupply);
+        const tokenAProvided = liquidityTokenSupply > 0 ? ((liquidityTokenBalance * reserveA) / liquidityTokenSupply) : 0;
+        const tokenBProvided = liquidityTokenSupply > 0 ? ((liquidityTokenBalance * reserveB) / liquidityTokenSupply) : 0;
         const formattedTokenAProvided = parseFloat(ethers.formatEther(tokenAProvided));
         const formattedTokenBProvided = parseFloat(ethers.formatEther(tokenBProvided));
         props.setWethLiquidity(formattedTokenAProvided > 0.0001 ? (formattedTokenAProvided - 0.0001).toFixed(4) : formattedTokenAProvided.toFixed(4));
