@@ -210,6 +210,10 @@ function SwapBox(props) {
     const ldxAllowance = await ldxContract.allowance(signerAddress, tradingPairAddress);
     return [wethAllowance, ldxAllowance];
   }
+  async function verifyTokenAllowances() {
+    const [wethAllowance, ldxAllowance] = await getTokenAllowances();
+    return (invertedInputs ? ldxAllowance >= input1 : wethAllowance >= input1);
+  }
   async function swap() {
     try {
 
