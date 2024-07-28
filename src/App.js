@@ -202,7 +202,7 @@ function SwapBox(props) {
   async function getTokenAllowances() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = provider.getSigner();
-    const signerAddress = await signer.getAddress();
+    const signerAddress = (await signer).address;
 
     const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
     const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
@@ -278,13 +278,25 @@ function SwapBox(props) {
     setInput1('');
     setInput2('');
   }, [invertedInputs]);
+  useEffect(() => {
+    async function update() {
+      const enoughAllowances = await verifyTokenAllowances();
+      if (enoughAllowances && !allowancesVerified) {
+        setAllowancesVerified(true);
+      }
+      else if (!enoughAllowances && allowancesVerified) {
+        setAllowancesVerified(false);
+      }
+    }
+    update();
+  }, [input1, input2, invertedInputs]);
 
   return (
     <div className="input-box">
       <InputEntry text={invertedInputs ? 'LDX' : 'WETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
       <InputEntry text={invertedInputs ? 'WETH' : 'LDX'}  input={input2} setInput={setInput2}/>
-      <ConfirmButton text='Swap' onClick={swap}/>
+      <ConfirmButton text={allowancesVerified ? 'Swap' : 'Approve'} onClick={swap}/>
     </div>
   )
 }
