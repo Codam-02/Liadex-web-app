@@ -179,25 +179,25 @@ function SwapBox(props) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
-    return reserveA - ((reserveA * reserveB) / (reserveB + tokenBAmount));
+    return (reserveB + tokenBAmount) > 0 ? (reserveA - ((reserveA * reserveB) / (reserveB + tokenBAmount))) : 0;
   }
   async function getExpectedTokenBReceived(tokenAAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
-    return reserveB - ((reserveA * reserveB) / (reserveA + tokenAAmount));
+    return (reserveA + tokenAAmount) > 0 ? (reserveB - ((reserveA * reserveB) / (reserveA + tokenAAmount))) : 0;
   }
   async function getExpectedTokenAGiven(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
-    return ((reserveA * reserveB) / (reserveB - tokenBAmount)) - reserveA;
+    return (reserveB - tokenBAmount) > 0 ? (((reserveA * reserveB) / (reserveB - tokenBAmount)) - reserveA) : 0;
   }
   async function getExpectedTokenBGiven(tokenAAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
-    return ((reserveA * reserveB) / (reserveA - tokenAAmount)) - reserveB;
+    return (reserveA - tokenAAmount) > 0 ? (((reserveA * reserveB) / (reserveA - tokenAAmount)) - reserveB) : 0;
   }
   async function getTokenAllowances() {
     const provider = new ethers.BrowserProvider(window.ethereum);
