@@ -173,6 +173,8 @@ function WalletDataEntry(props) {
 
 function SwapBox(props) {
   const {invertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
+  const [allowancesVerified, setAllowancesVerified] = useState(true);
+
   async function getExpectedTokenAReceived(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
