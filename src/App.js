@@ -214,7 +214,7 @@ function SwapBox(props) {
   }
   async function verifyTokenAllowances() {
     const [wethAllowance, ldxAllowance] = await getTokenAllowances();
-    return (invertedInputs ? ldxAllowance >= input1 : wethAllowance >= input1);
+    return (invertedInputs ? ldxAllowance >= ethers.parseUnits(input1, 18) : wethAllowance >= ethers.parseUnits(input1, 18));
   }
   async function swap() {
     try {
@@ -244,52 +244,68 @@ function SwapBox(props) {
 
   useEffect(() => {
     async function update() {
-      if (input1 === '' || input1 === '.') {
-        setInput1('');
-        setInput2('');
-      } else {
-        let res;
-          res = await (invertedInputs ? getExpectedTokenAReceived(ethers.parseUnits(input1, 18)) : getExpectedTokenBReceived(ethers.parseUnits(input1, 18)));
-          const formattedRes = ethers.formatUnits(res, 18);
-          if (parseFloat(formattedRes) !== parseFloat(input2)) {
-            setInput2(formattedRes);
-          }
+      try {
+        if (input1 === '' || input1 === '.') {
+          setInput1('');
+          setInput2('');
+        } else {
+          let res;
+            res = await (invertedInputs ? getExpectedTokenAReceived(ethers.parseUnits(input1, 18)) : getExpectedTokenBReceived(ethers.parseUnits(input1, 18)));
+            const formattedRes = ethers.formatUnits(res, 18);
+            if (parseFloat(formattedRes) !== parseFloat(input2)) {
+              setInput2(formattedRes);
+            }
+        }
+        const enoughAllowances = await verifyTokenAllowances();
+        if (enoughAllowances && !allowancesVerified) {
+          setAllowancesVerified(true);
+        }
+        else if (!enoughAllowances && allowancesVerified) {
+          setAllowancesVerified(false);
+        }
+      }
+      catch (error) {
+        console.error(error);
       }
     }
-    update();
+    if (props.connectedAccount !== null) {
+      update();
+    }
   }, [input1]);
   useEffect(() => {
     async function update() {
-      if (input2 === ''  || input2 === '.') {
-        setInput1('');
-        setInput2('');
-      } else {
-        let res;
-          res = await (invertedInputs ? getExpectedTokenBGiven(ethers.parseUnits(input2, 18)) : getExpectedTokenAGiven(ethers.parseUnits(input2, 18)));
-          const formattedRes = ethers.formatUnits(res, 18);
-          if (parseFloat(formattedRes) !== parseFloat(input1)) {
-            setInput1(formattedRes);
-          }
+      try {
+        if (input2 === ''  || input2 === '.') {
+          setInput1('');
+          setInput2('');
+        } else {
+          let res;
+            res = await (invertedInputs ? getExpectedTokenBGiven(ethers.parseUnits(input2, 18)) : getExpectedTokenAGiven(ethers.parseUnits(input2, 18)));
+            const formattedRes = ethers.formatUnits(res, 18);
+            if (parseFloat(formattedRes) !== parseFloat(input1)) {
+              setInput1(formattedRes);
+            }
+        }
+        const enoughAllowances = await verifyTokenAllowances();
+        if (enoughAllowances && !allowancesVerified) {
+          setAllowancesVerified(true);
+        }
+        else if (!enoughAllowances && allowancesVerified) {
+          setAllowancesVerified(false);
+        }
+      }
+      catch (error) {
+        console.error(error);
       }
     }
-    update();
+    if (props.connectedAccount !== null) {
+      update();
+    }
   }, [input2]);
   useEffect(() => {
     setInput1('');
     setInput2('');
   }, [invertedInputs]);
-  useEffect(() => {
-    async function update() {
-      const enoughAllowances = await verifyTokenAllowances();
-      if (enoughAllowances && !allowancesVerified) {
-        setAllowancesVerified(true);
-      }
-      else if (!enoughAllowances && allowancesVerified) {
-        setAllowancesVerified(false);
-      }
-    }
-    update();
-  }, [input1, input2, invertedInputs]);
 
   return (
     <div className="input-box">
@@ -606,7 +622,7 @@ function MainContent(props) {
   if (props.pageState === 'Swap') {
     return (
       <div className='App-main'>
-        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts}/>
+        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts} connectedAccount={props.connectedAccount}/>
       </div>
     )
   }
@@ -649,7 +665,7 @@ function App() {
   return (
     <div className="App">
       <AppHeader contracts={contracts} connectedAccount={connectedAccount} setConnectedAccount={setConnectedAccount} setPageState={setPageState} setWethLiquidity={setWethLiquidity} setLdxLiquidity={setLdxLiquidity}/>
-      <MainContent contracts={contracts} pageState={pageState} setPageState={setPageState} wethLiquidity={wethLiquidity} ldxLiquidity={ldxLiquidity}/>
+      <MainContent contracts={contracts} pageState={pageState} setPageState={setPageState} wethLiquidity={wethLiquidity} ldxLiquidity={ldxLiquidity} connectedAccount={connectedAccount}/>
     </div>
   )
 }
