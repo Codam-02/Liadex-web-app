@@ -174,6 +174,7 @@ function WalletDataEntry(props) {
 function SwapBox(props) {
   const {invertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
   const [allowancesVerified, setAllowancesVerified] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   async function getExpectedTokenAReceived(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -265,6 +266,7 @@ function SwapBox(props) {
         if (input1 === '' || input1 === '.') {
           setInput1('');
           setInput2('');
+          setErrorMsg('');
         } else {
           let res;
             res = await (invertedInputs ? getExpectedTokenAReceived(ethers.parseUnits(input1, 18)) : getExpectedTokenBReceived(ethers.parseUnits(input1, 18)));
@@ -274,10 +276,24 @@ function SwapBox(props) {
             }
         }
         const enoughAllowances = await verifyTokenAllowances();
-        if (enoughAllowances && !allowancesVerified) {
-          setAllowancesVerified(true);
+        if (enoughAllowances) {
+          if (!allowancesVerified) {
+            setAllowancesVerified(true);
+          }
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = provider.getSigner();
+          const signerAddress = (await signer).address;
+          const tokenContract = new ethers.Contract((invertedInputs ? contracts.liadexContract.address : contracts.wrapperContract.address), (invertedInputs ? contracts.liadexContract.abi : contracts.wrapperContract.abi), provider);
+          const balanceNeeded = ethers.parseUnits(input1, 18);
+          const userBalance = await tokenContract.balanceOf(signerAddress);
+          if (balanceNeeded > userBalance) {
+            setErrorMsg('Insufficient balance or token reserves');
+          }
+          else if (errorMsg !== '') {
+            setErrorMsg('');
+          }
         }
-        else if (!enoughAllowances && allowancesVerified) {
+        else if (allowancesVerified) {
           setAllowancesVerified(false);
         }
       }
@@ -295,6 +311,7 @@ function SwapBox(props) {
         if (input2 === ''  || input2 === '.') {
           setInput1('');
           setInput2('');
+          setErrorMsg('');
         } else {
           let res;
             res = await (invertedInputs ? getExpectedTokenBGiven(ethers.parseUnits(input2, 18)) : getExpectedTokenAGiven(ethers.parseUnits(input2, 18)));
@@ -304,10 +321,22 @@ function SwapBox(props) {
             }
         }
         const enoughAllowances = await verifyTokenAllowances();
-        if (enoughAllowances && !allowancesVerified) {
-          setAllowancesVerified(true);
+        if (enoughAllowances) {
+          if (!allowancesVerified) {
+            setAllowancesVerified(true);
+          }
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+          const reserveNeeded = ethers.parseUnits(input2, 18);
+          const [wethReserve, ldxReserve] = await tradingPairContract.getReserves();
+          if (reserveNeeded > (invertedInputs ? wethReserve : ldxReserve)) {
+            setErrorMsg('Insufficient balance or token reserves');
+          }
+          else if (errorMsg !== '') {
+            setErrorMsg('');
+          }
         }
-        else if (!enoughAllowances && allowancesVerified) {
+        else if (allowancesVerified) {
           setAllowancesVerified(false);
         }
       }
@@ -329,7 +358,7 @@ function SwapBox(props) {
       <InputEntry text={invertedInputs ? 'LDX' : 'WETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
       <InputEntry text={invertedInputs ? 'WETH' : 'LDX'}  input={input2} setInput={setInput2}/>
-      <ConfirmButton text={allowancesVerified ? 'Swap' : 'Approve'} onClick={allowancesVerified ? swap : approve}/>
+      <ConfirmButton text={allowancesVerified ? 'Swap' : (invertedInputs ? 'Approve ldx' : 'Approve weth')} onClick={allowancesVerified ? swap : approve} errorMsg={errorMsg}/>
     </div>
   )
 }
@@ -585,7 +614,10 @@ function TokenLabel(props) {
 
 function ConfirmButton(props) {
   return (
-    <button className="confirm-button" onClick={props.onClick}>{props.text}</button>
+    <div>
+      <button className="confirm-button" onClick={props.onClick}>{props.text}</button>
+      <p className='error-msg'>{props.errorMsg}</p>
+    </div>
   )
 }
 
