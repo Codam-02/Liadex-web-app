@@ -453,6 +453,7 @@ function WrapperBox(props) {
 
 function AddLiquidityBox(props) {
   const {input1, input2, setInput1, setInput2, contracts} = props;
+  const [errorMsg, setErrorMsg] = useState('');
   async function getEquivalentTokenA(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
@@ -489,32 +490,72 @@ function AddLiquidityBox(props) {
 
   useEffect(() => {
     async function update() {
-      if (input1 === '' || input1 === '.') {
-        setInput1('');
-        setInput2('');
-      } else {
-        let res;
-        res = (await getEquivalentTokenB(ethers.parseUnits(input1, 18)));
-        const formattedRes = ethers.formatUnits(res, 18);
-        if (Math.abs(parseFloat(formattedRes) - parseFloat(input2)) > 0.00001 || input2 === '') {
-          setInput2(formattedRes);
+      try {
+        if (input1 === '' || input1 === '.') {
+          setInput1('');
+          setInput2('');
+        } else {
+          let res;
+          res = (await getEquivalentTokenB(ethers.parseUnits(input1, 18)));
+          const formattedRes = ethers.formatUnits(res, 18);
+          if (Math.abs(parseFloat(formattedRes) - parseFloat(input2)) > 0.00001 || input2 === '') {
+            setInput2(formattedRes);
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = provider.getSigner();
+            const signerAddress = (await signer).address;
+            const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+            const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
+            const wethNeeded = ethers.parseUnits(input1, 18);
+            const ldxNeeded = ethers.parseUnits(formattedRes, 18);
+            const wethBalance = await wethContract.balanceOf(signerAddress);
+            const ldxBalance = await ldxContract.balanceOf(signerAddress);
+            if ((wethNeeded > wethBalance) || (ldxNeeded > ldxBalance)) {
+              setErrorMsg('Insufficient balances');
+            }
+            else if (errorMsg !== '') {
+              setErrorMsg('');
+            }
+          }
         }
+      }
+      catch (error) {
+        console.error(error);
       }
     }
     update();
   }, [input1]);
   useEffect(() => {
     async function update() {
-      if (input2 === '' || input2 === '.') {
-        setInput1('');
-        setInput2('');
-      } else {
-        let res;
-        res = (await getEquivalentTokenA(ethers.parseUnits(input2, 18)));
-        const formattedRes = ethers.formatUnits(res, 18);
-        if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.000000000000001 || input1 === '') {
-          setInput1(formattedRes);
+      try {
+        if (input2 === '' || input2 === '.') {
+          setInput1('');
+          setInput2('');
+        } else {
+          let res;
+          res = (await getEquivalentTokenA(ethers.parseUnits(input2, 18)));
+          const formattedRes = ethers.formatUnits(res, 18);
+          if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.00001 || input1 === '') {
+            setInput1(formattedRes);
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = provider.getSigner();
+            const signerAddress = (await signer).address;
+            const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+            const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
+            const wethNeeded = ethers.parseUnits(formattedRes, 18);
+            const ldxNeeded = ethers.parseUnits(input2, 18);
+            const wethBalance = await wethContract.balanceOf(signerAddress);
+            const ldxBalance = await ldxContract.balanceOf(signerAddress);
+            if ((wethNeeded > wethBalance) || (ldxNeeded > ldxBalance)) {
+              setErrorMsg('Insufficient balances');
+            }
+            else if (errorMsg !== '') {
+              setErrorMsg('');
+            }
+          }
         }
+      }
+      catch (error) {
+        console.error(error);
       }
     }
     update();
@@ -524,7 +565,7 @@ function AddLiquidityBox(props) {
       <div className="input-box">
         <InputEntry text='WETH' input={input1} setInput={setInput1}/>
         <InputEntry text='LDX'  input={input2} setInput={setInput2}/>
-        <ConfirmButton text='Add liquidity' onClick={addLiquidity}/>
+        <ConfirmButton text='Add liquidity' onClick={addLiquidity} errorMsg={errorMsg}/>
       </div>
     )
 }
@@ -590,7 +631,7 @@ function WithdrawBox(props) {
         let res;
         res = (await getEquivalentTokenA(ethers.parseUnits(input2, 18)));
         const formattedRes = ethers.formatUnits(res, 18);
-        if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.000000000000001 || input1 === '') {
+        if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.00001 || input1 === '') {
           setInput1(formattedRes);
         }
       }
