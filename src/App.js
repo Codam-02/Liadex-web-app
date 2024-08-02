@@ -4,7 +4,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faRightLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import contracts from './contractAddresses.json';
-import { ethers } from 'ethers';
+import { ethers, parseUnits } from 'ethers';
 
 library.add(faRightLeft);
 
@@ -454,6 +454,9 @@ function WrapperBox(props) {
 function AddLiquidityBox(props) {
   const {input1, input2, setInput1, setInput2, contracts} = props;
   const [errorMsg, setErrorMsg] = useState('');
+  const [wethAllowanceIsVerified, setWethAllowanceIsVerified] = useState(false);
+  const [ldxAllowanceIsVerified, setLdxAllowanceIsVerified] = useState(false);
+
   async function getEquivalentTokenA(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
@@ -485,6 +488,81 @@ function AddLiquidityBox(props) {
       console.log('Transaction successful:', transactionResponse);
     } catch (error) {
       console.error('Error sending transaction:', error);
+    }
+  }
+  async function getTokenAllowances() {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = provider.getSigner();
+    const signerAddress = (await signer).address;
+
+    const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+    const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
+    const tradingPairAddress = contracts.tradingPairContract.address;
+    
+    const wethAllowance = await wethContract.allowance(signerAddress, tradingPairAddress);
+    const ldxAllowance = await ldxContract.allowance(signerAddress, tradingPairAddress);
+    return [wethAllowance, ldxAllowance];
+  }
+  async function verifyTokenAllowances() {
+    try {
+      if (input1 === '' || input2 === '') {
+        setWethAllowanceIsVerified(true);
+        setLdxAllowanceIsVerified(true);
+        return;
+      }
+      const [wethAllowance, ldxAllowance] = await getTokenAllowances();
+      if (wethAllowance < ethers.parseUnits(input1)) {
+        setWethAllowanceIsVerified(false);
+      }
+      else {
+        setWethAllowanceIsVerified(true);
+      }
+      if (ldxAllowance < ethers.parseUnits(input2)) {
+        setLdxAllowanceIsVerified(false);
+      }
+      else {
+        setLdxAllowanceIsVerified(true);
+      }
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
+  async function approve() {
+    await verifyTokenAllowances();
+    if (!wethAllowanceIsVerified) {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+  
+        const tokenContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, signer);
+  
+        let transactionResponse;
+        transactionResponse = await tokenContract.approve(contracts.tradingPairContract.address, ethers.parseUnits("100", 18));
+        await transactionResponse.wait();
+        setWethAllowanceIsVerified(true);
+  
+        console.log('Transaction successful:', transactionResponse);
+      } catch (error) {
+        console.error('Error sending transaction:', error);
+      }
+    }
+    else if (!ldxAllowanceIsVerified) {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+  
+        const tokenContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, signer);
+  
+        let transactionResponse;
+        transactionResponse = await tokenContract.approve(contracts.tradingPairContract.address, ethers.parseUnits("100", 18));
+        await transactionResponse.wait();
+        setLdxAllowanceIsVerified(true);
+  
+        console.log('Transaction successful:', transactionResponse);
+      } catch (error) {
+        console.error('Error sending transaction:', error);
+      }
     }
   }
 
@@ -523,6 +601,7 @@ function AddLiquidityBox(props) {
       }
     }
     update();
+    verifyTokenAllowances();
   }, [input1]);
   useEffect(() => {
     async function update() {
@@ -559,13 +638,14 @@ function AddLiquidityBox(props) {
       }
     }
     update();
+    verifyTokenAllowances();
   }, [input2]);
 
   return (
       <div className="input-box">
         <InputEntry text='WETH' input={input1} setInput={setInput1}/>
         <InputEntry text='LDX'  input={input2} setInput={setInput2}/>
-        <ConfirmButton text='Add liquidity' onClick={addLiquidity} errorMsg={errorMsg}/>
+        <ConfirmButton text={wethAllowanceIsVerified ? (ldxAllowanceIsVerified ? 'Add liquidity' : 'Approve ldx') : 'Approve weth'} onClick={wethAllowanceIsVerified && ldxAllowanceIsVerified ? addLiquidity : approve} errorMsg={errorMsg}/>
       </div>
     )
 }
