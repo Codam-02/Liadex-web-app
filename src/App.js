@@ -241,6 +241,23 @@ function SwapBox(props) {
       console.error('Error sending transaction:', error);
     }
   }
+  async function approve() {
+    try {
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const tokenContract = new ethers.Contract((invertedInputs ? contracts.liadexContract.address : contracts.wrapperContract.address), (invertedInputs ? contracts.liadexContract.abi : contracts.wrapperContract.abi), signer);
+
+      let transactionResponse;
+      transactionResponse = await tokenContract.approve(contracts.tradingPairContract.address, ethers.parseUnits("100", 18));
+      await transactionResponse.wait();
+
+      console.log('Transaction successful:', transactionResponse);
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+    }
+  }
 
   useEffect(() => {
     async function update() {
@@ -312,7 +329,7 @@ function SwapBox(props) {
       <InputEntry text={invertedInputs ? 'LDX' : 'WETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
       <InputEntry text={invertedInputs ? 'WETH' : 'LDX'}  input={input2} setInput={setInput2}/>
-      <ConfirmButton text={allowancesVerified ? 'Swap' : 'Approve'} onClick={swap}/>
+      <ConfirmButton text={allowancesVerified ? 'Swap' : 'Approve'} onClick={allowancesVerified ? swap : approve}/>
     </div>
   )
 }
