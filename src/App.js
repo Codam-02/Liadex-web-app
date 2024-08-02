@@ -365,6 +365,7 @@ function SwapBox(props) {
 
 function WrapperBox(props) {
   const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
+  const [errorMsg, setErrorMsg] = useState('');
   async function wrap() {
     try {  
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -405,22 +406,47 @@ function WrapperBox(props) {
   }
 
   useEffect(() => {
-    setInput2(input1);
-  }, [input1, setInput2]);
+    async function update () {
+      try {
+        setInput2(input1);
+        if (input1 === '') {
+          setErrorMsg('');
+          return;
+        }
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = provider.getSigner();
+        const signerAddress = (await signer).address;
+        const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+        const balanceNeeded = ethers.parseUnits(input1, 18);
+        const userBalance = invertedInputs ? (await wethContract.balanceOf(signerAddress)) : (await provider.getBalance(signerAddress));
+        if (balanceNeeded > userBalance) {
+          setErrorMsg('Insufficient balance');
+        }
+        else if (errorMsg !== '') {
+          setErrorMsg('');
+        }
+      }
+      catch (error) {
+        console.error(error);
+      }
+    }
+    update();
+  }, [input1]);
   useEffect(() => {
     setInput1(input2);
-  }, [input2, setInput1]);
+  }, [input2]);
   useEffect(() => {
     setInput1('');
     setInput2('');
-  }, [invertedInputs, setInput1, setInput2]);
+    setErrorMsg('');
+  }, [invertedInputs]);
 
   return (
     <div className="input-box">
       <InputEntry text={invertedInputs ? 'WETH' : 'ETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => setInvertedInputs(!invertedInputs)}/>
       <InputEntry text={invertedInputs ? 'ETH' : 'WETH'}  input={input2} setInput={setInput2}/>
-      <ConfirmButton text={invertedInputs ? 'Unwrap' : 'Wrap'} onClick={invertedInputs ? unwrap : wrap}/>
+      <ConfirmButton text={invertedInputs ? 'Unwrap' : 'Wrap'} onClick={invertedInputs ? unwrap : wrap} errorMsg={errorMsg}/>
     </div>
   )
 }
