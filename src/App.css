@@ -112,7 +112,7 @@ body {
   padding-left: 25px;
   padding-right: 25px;
   padding-top: 35px;
-  padding-bottom: 25px;
+  padding-bottom: 5px;
   background-color: #737373;
   border-radius: 12px;
   width: fit-content;
@@ -138,6 +138,7 @@ body {
   color: #000000;
   background-color: #E5E5E5;
   transition: background-color 0.3s ease;
+  width: 270px;
 }
 
 .input-group input:focus {
@@ -165,6 +166,13 @@ body {
   transition: background-color 0.3s ease;
   font-size: 23px;
   margin-top: 30px;
+  width: 350px;
+}
+
+.error-msg {
+  font-family: 'Montserrat', sans-serif;
+  color: #c90505;
+  font-size: 18px;
 }
 
 .confirm-button:hover {

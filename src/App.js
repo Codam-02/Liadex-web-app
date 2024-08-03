@@ -4,7 +4,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faRightLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import contracts from './contractAddresses.json';
-import { ethers } from 'ethers';
+import { ethers, parseUnits } from 'ethers';
 
 library.add(faRightLeft);
 
@@ -130,8 +130,8 @@ function WalletButton(props) {
         const liquidityTokenBalance = await tradingPair.balanceOf(signerAddress);
         const liquidityTokenSupply = await tradingPair.totalSupply();
         const [reserveA, reserveB] = await tradingPair.getReserves();
-        const tokenAProvided = ((liquidityTokenBalance * reserveA) / liquidityTokenSupply);
-        const tokenBProvided = ((liquidityTokenBalance * reserveB) / liquidityTokenSupply);
+        const tokenAProvided = liquidityTokenSupply > 0 ? ((liquidityTokenBalance * reserveA) / liquidityTokenSupply) : 0;
+        const tokenBProvided = liquidityTokenSupply > 0 ? ((liquidityTokenBalance * reserveB) / liquidityTokenSupply) : 0;
         const formattedTokenAProvided = parseFloat(ethers.formatEther(tokenAProvided));
         const formattedTokenBProvided = parseFloat(ethers.formatEther(tokenBProvided));
         props.setWethLiquidity(formattedTokenAProvided > 0.0001 ? (formattedTokenAProvided - 0.0001).toFixed(4) : formattedTokenAProvided.toFixed(4));
@@ -173,29 +173,49 @@ function WalletDataEntry(props) {
 
 function SwapBox(props) {
   const {invertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
+  const [allowancesVerified, setAllowancesVerified] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
+
   async function getExpectedTokenAReceived(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
-    return reserveA - ((reserveA * reserveB) / (reserveB + tokenBAmount));
+    return (reserveB + tokenBAmount) > 0 ? (reserveA - ((reserveA * reserveB) / (reserveB + tokenBAmount))) : 0;
   }
   async function getExpectedTokenBReceived(tokenAAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
-    return reserveB - ((reserveA * reserveB) / (reserveA + tokenAAmount));
+    return (reserveA + tokenAAmount) > 0 ? (reserveB - ((reserveA * reserveB) / (reserveA + tokenAAmount))) : 0;
   }
   async function getExpectedTokenAGiven(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
-    return ((reserveA * reserveB) / (reserveB - tokenBAmount)) - reserveA;
+    return (reserveB - tokenBAmount) > 0 ? (((reserveA * reserveB) / (reserveB - tokenBAmount)) - reserveA) : 0;
   }
   async function getExpectedTokenBGiven(tokenAAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
     const [reserveA, reserveB] = await tradingPairContract.getReserves();
-    return ((reserveA * reserveB) / (reserveA - tokenAAmount)) - reserveB;
+    return (reserveA - tokenAAmount) > 0 ? (((reserveA * reserveB) / (reserveA - tokenAAmount)) - reserveB) : 0;
+  }
+  async function getTokenAllowances() {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = provider.getSigner();
+    const signerAddress = (await signer).address;
+
+    const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+    const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
+    const tradingPairAddress = contracts.tradingPairContract.address;
+    
+    const wethAllowance = await wethContract.allowance(signerAddress, tradingPairAddress);
+    const ldxAllowance = await ldxContract.allowance(signerAddress, tradingPairAddress);
+    return [wethAllowance, ldxAllowance];
+  }
+  async function verifyTokenAllowances() {
+    const [wethAllowance, ldxAllowance] = await getTokenAllowances();
+    return (invertedInputs ? ldxAllowance >= ethers.parseUnits(input1, 18) : wethAllowance >= ethers.parseUnits(input1, 18));
   }
   async function swap() {
     try {
@@ -222,38 +242,111 @@ function SwapBox(props) {
       console.error('Error sending transaction:', error);
     }
   }
+  async function approve() {
+    try {
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const tokenContract = new ethers.Contract((invertedInputs ? contracts.liadexContract.address : contracts.wrapperContract.address), (invertedInputs ? contracts.liadexContract.abi : contracts.wrapperContract.abi), signer);
+
+      let transactionResponse;
+      transactionResponse = await tokenContract.approve(contracts.tradingPairContract.address, ethers.parseUnits("100", 18));
+      await transactionResponse.wait();
+
+      console.log('Transaction successful:', transactionResponse);
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+    }
+  }
 
   useEffect(() => {
     async function update() {
-      if (input1 === '' || input1 === '.') {
-        setInput1('');
-        setInput2('');
-      } else {
-        let res;
-          res = await (invertedInputs ? getExpectedTokenAReceived(ethers.parseUnits(input1, 18)) : getExpectedTokenBReceived(ethers.parseUnits(input1, 18)));
-          const formattedRes = ethers.formatUnits(res, 18);
-          if (parseFloat(formattedRes) !== parseFloat(input2)) {
-            setInput2(formattedRes);
+      try {
+        if (input1 === '' || input1 === '.') {
+          setInput1('');
+          setInput2('');
+          setErrorMsg('');
+        } else {
+          let res;
+            res = await (invertedInputs ? getExpectedTokenAReceived(ethers.parseUnits(input1, 18)) : getExpectedTokenBReceived(ethers.parseUnits(input1, 18)));
+            const formattedRes = ethers.formatUnits(res, 18);
+            if (parseFloat(formattedRes) !== parseFloat(input2)) {
+              setInput2(formattedRes);
+            }
+        }
+        const enoughAllowances = await verifyTokenAllowances();
+        if (enoughAllowances) {
+          if (!allowancesVerified) {
+            setAllowancesVerified(true);
           }
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = provider.getSigner();
+          const signerAddress = (await signer).address;
+          const tokenContract = new ethers.Contract((invertedInputs ? contracts.liadexContract.address : contracts.wrapperContract.address), (invertedInputs ? contracts.liadexContract.abi : contracts.wrapperContract.abi), provider);
+          const balanceNeeded = ethers.parseUnits(input1, 18);
+          const userBalance = await tokenContract.balanceOf(signerAddress);
+          if (balanceNeeded > userBalance) {
+            setErrorMsg('Insufficient balance or token reserves');
+          }
+          else if (errorMsg !== '') {
+            setErrorMsg('');
+          }
+        }
+        else if (allowancesVerified) {
+          setAllowancesVerified(false);
+        }
+      }
+      catch (error) {
+        console.error(error);
       }
     }
-    update();
+    if (props.connectedAccount !== null) {
+      update();
+    }
   }, [input1]);
   useEffect(() => {
     async function update() {
-      if (input2 === ''  || input2 === '.') {
-        setInput1('');
-        setInput2('');
-      } else {
-        let res;
-          res = await (invertedInputs ? getExpectedTokenBGiven(ethers.parseUnits(input2, 18)) : getExpectedTokenAGiven(ethers.parseUnits(input2, 18)));
-          const formattedRes = ethers.formatUnits(res, 18);
-          if (parseFloat(formattedRes) !== parseFloat(input1)) {
-            setInput1(formattedRes);
+      try {
+        if (input2 === ''  || input2 === '.') {
+          setInput1('');
+          setInput2('');
+          setErrorMsg('');
+        } else {
+          let res;
+            res = await (invertedInputs ? getExpectedTokenBGiven(ethers.parseUnits(input2, 18)) : getExpectedTokenAGiven(ethers.parseUnits(input2, 18)));
+            const formattedRes = ethers.formatUnits(res, 18);
+            if (parseFloat(formattedRes) !== parseFloat(input1)) {
+              setInput1(formattedRes);
+            }
+        }
+        const enoughAllowances = await verifyTokenAllowances();
+        if (enoughAllowances) {
+          if (!allowancesVerified) {
+            setAllowancesVerified(true);
           }
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
+          const reserveNeeded = ethers.parseUnits(input2, 18);
+          const [wethReserve, ldxReserve] = await tradingPairContract.getReserves();
+          if (reserveNeeded > (invertedInputs ? wethReserve : ldxReserve)) {
+            setErrorMsg('Insufficient balance or token reserves');
+          }
+          else if (errorMsg !== '') {
+            setErrorMsg('');
+          }
+        }
+        else if (allowancesVerified) {
+          setAllowancesVerified(false);
+        }
+      }
+      catch (error) {
+        console.error(error);
       }
     }
-    update();
+    if (props.connectedAccount !== null) {
+      update();
+    }
   }, [input2]);
   useEffect(() => {
     setInput1('');
@@ -265,13 +358,14 @@ function SwapBox(props) {
       <InputEntry text={invertedInputs ? 'LDX' : 'WETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => props.setInvertedInputs(!props.invertedInputs)}/>
       <InputEntry text={invertedInputs ? 'WETH' : 'LDX'}  input={input2} setInput={setInput2}/>
-      <ConfirmButton text='Swap' onClick={swap}/>
+      <ConfirmButton text={allowancesVerified ? 'Swap' : (invertedInputs ? 'Approve ldx' : 'Approve weth')} onClick={allowancesVerified ? swap : approve} errorMsg={errorMsg}/>
     </div>
   )
 }
 
 function WrapperBox(props) {
   const {invertedInputs, setInvertedInputs, input1, input2, setInput1, setInput2, contracts} = props;
+  const [errorMsg, setErrorMsg] = useState('');
   async function wrap() {
     try {  
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -312,28 +406,57 @@ function WrapperBox(props) {
   }
 
   useEffect(() => {
-    setInput2(input1);
-  }, [input1, setInput2]);
+    async function update () {
+      try {
+        setInput2(input1);
+        if (input1 === '') {
+          setErrorMsg('');
+          return;
+        }
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = provider.getSigner();
+        const signerAddress = (await signer).address;
+        const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+        const balanceNeeded = ethers.parseUnits(input1, 18);
+        const userBalance = invertedInputs ? (await wethContract.balanceOf(signerAddress)) : (await provider.getBalance(signerAddress));
+        if (balanceNeeded > userBalance) {
+          setErrorMsg('Insufficient balance');
+        }
+        else if (errorMsg !== '') {
+          setErrorMsg('');
+        }
+      }
+      catch (error) {
+        console.error(error);
+      }
+    }
+    update();
+  }, [input1]);
   useEffect(() => {
     setInput1(input2);
-  }, [input2, setInput1]);
+  }, [input2]);
   useEffect(() => {
     setInput1('');
     setInput2('');
-  }, [invertedInputs, setInput1, setInput2]);
+    setErrorMsg('');
+  }, [invertedInputs]);
 
   return (
     <div className="input-box">
       <InputEntry text={invertedInputs ? 'WETH' : 'ETH'} input={input1} setInput={setInput1}/>
       <FontAwesomeIcon className='invert-icon' icon="fa-solid fa-right-left" rotation={90} onClick={() => setInvertedInputs(!invertedInputs)}/>
       <InputEntry text={invertedInputs ? 'ETH' : 'WETH'}  input={input2} setInput={setInput2}/>
-      <ConfirmButton text={invertedInputs ? 'Unwrap' : 'Wrap'} onClick={invertedInputs ? unwrap : wrap}/>
+      <ConfirmButton text={invertedInputs ? 'Unwrap' : 'Wrap'} onClick={invertedInputs ? unwrap : wrap} errorMsg={errorMsg}/>
     </div>
   )
 }
 
 function AddLiquidityBox(props) {
   const {input1, input2, setInput1, setInput2, contracts} = props;
+  const [errorMsg, setErrorMsg] = useState('');
+  const [wethAllowanceIsVerified, setWethAllowanceIsVerified] = useState(false);
+  const [ldxAllowanceIsVerified, setLdxAllowanceIsVerified] = useState(false);
+
   async function getEquivalentTokenA(tokenBAmount) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tradingPairContract = new ethers.Contract(contracts.tradingPairContract.address, contracts.tradingPairContract.abi, provider);
@@ -367,45 +490,162 @@ function AddLiquidityBox(props) {
       console.error('Error sending transaction:', error);
     }
   }
+  async function getTokenAllowances() {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = provider.getSigner();
+    const signerAddress = (await signer).address;
+
+    const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+    const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
+    const tradingPairAddress = contracts.tradingPairContract.address;
+    
+    const wethAllowance = await wethContract.allowance(signerAddress, tradingPairAddress);
+    const ldxAllowance = await ldxContract.allowance(signerAddress, tradingPairAddress);
+    return [wethAllowance, ldxAllowance];
+  }
+  async function verifyTokenAllowances() {
+    try {
+      if (input1 === '' || input2 === '') {
+        setWethAllowanceIsVerified(true);
+        setLdxAllowanceIsVerified(true);
+        return;
+      }
+      const [wethAllowance, ldxAllowance] = await getTokenAllowances();
+      if (wethAllowance < ethers.parseUnits(input1)) {
+        setWethAllowanceIsVerified(false);
+      }
+      else {
+        setWethAllowanceIsVerified(true);
+      }
+      if (ldxAllowance < ethers.parseUnits(input2)) {
+        setLdxAllowanceIsVerified(false);
+      }
+      else {
+        setLdxAllowanceIsVerified(true);
+      }
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
+  async function approve() {
+    await verifyTokenAllowances();
+    if (!wethAllowanceIsVerified) {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+  
+        const tokenContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, signer);
+  
+        let transactionResponse;
+        transactionResponse = await tokenContract.approve(contracts.tradingPairContract.address, ethers.parseUnits("100", 18));
+        await transactionResponse.wait();
+        setWethAllowanceIsVerified(true);
+  
+        console.log('Transaction successful:', transactionResponse);
+      } catch (error) {
+        console.error('Error sending transaction:', error);
+      }
+    }
+    else if (!ldxAllowanceIsVerified) {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+  
+        const tokenContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, signer);
+  
+        let transactionResponse;
+        transactionResponse = await tokenContract.approve(contracts.tradingPairContract.address, ethers.parseUnits("100", 18));
+        await transactionResponse.wait();
+        setLdxAllowanceIsVerified(true);
+  
+        console.log('Transaction successful:', transactionResponse);
+      } catch (error) {
+        console.error('Error sending transaction:', error);
+      }
+    }
+  }
 
   useEffect(() => {
     async function update() {
-      if (input1 === '' || input1 === '.') {
-        setInput1('');
-        setInput2('');
-      } else {
-        let res;
-        res = (await getEquivalentTokenB(ethers.parseUnits(input1, 18)));
-        const formattedRes = ethers.formatUnits(res, 18);
-        if (Math.abs(parseFloat(formattedRes) - parseFloat(input2)) > 0.00001 || input2 === '') {
-          setInput2(formattedRes);
+      try {
+        if (input1 === '' || input1 === '.') {
+          setInput1('');
+          setInput2('');
+        } else {
+          let res;
+          res = (await getEquivalentTokenB(ethers.parseUnits(input1, 18)));
+          const formattedRes = ethers.formatUnits(res, 18);
+          if (Math.abs(parseFloat(formattedRes) - parseFloat(input2)) > 0.00001 || input2 === '') {
+            setInput2(formattedRes);
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = provider.getSigner();
+            const signerAddress = (await signer).address;
+            const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+            const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
+            const wethNeeded = ethers.parseUnits(input1, 18);
+            const ldxNeeded = ethers.parseUnits(formattedRes, 18);
+            const wethBalance = await wethContract.balanceOf(signerAddress);
+            const ldxBalance = await ldxContract.balanceOf(signerAddress);
+            if ((wethNeeded > wethBalance) || (ldxNeeded > ldxBalance)) {
+              setErrorMsg('Insufficient balances');
+            }
+            else if (errorMsg !== '') {
+              setErrorMsg('');
+            }
+          }
         }
+      }
+      catch (error) {
+        console.error(error);
       }
     }
     update();
+    verifyTokenAllowances();
   }, [input1]);
   useEffect(() => {
     async function update() {
-      if (input2 === '' || input2 === '.') {
-        setInput1('');
-        setInput2('');
-      } else {
-        let res;
-        res = (await getEquivalentTokenA(ethers.parseUnits(input2, 18)));
-        const formattedRes = ethers.formatUnits(res, 18);
-        if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.000000000000001 || input1 === '') {
-          setInput1(formattedRes);
+      try {
+        if (input2 === '' || input2 === '.') {
+          setInput1('');
+          setInput2('');
+        } else {
+          let res;
+          res = (await getEquivalentTokenA(ethers.parseUnits(input2, 18)));
+          const formattedRes = ethers.formatUnits(res, 18);
+          if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.00001 || input1 === '') {
+            setInput1(formattedRes);
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = provider.getSigner();
+            const signerAddress = (await signer).address;
+            const wethContract = new ethers.Contract(contracts.wrapperContract.address, contracts.wrapperContract.abi, provider);
+            const ldxContract = new ethers.Contract(contracts.liadexContract.address, contracts.liadexContract.abi, provider);
+            const wethNeeded = ethers.parseUnits(formattedRes, 18);
+            const ldxNeeded = ethers.parseUnits(input2, 18);
+            const wethBalance = await wethContract.balanceOf(signerAddress);
+            const ldxBalance = await ldxContract.balanceOf(signerAddress);
+            if ((wethNeeded > wethBalance) || (ldxNeeded > ldxBalance)) {
+              setErrorMsg('Insufficient balances');
+            }
+            else if (errorMsg !== '') {
+              setErrorMsg('');
+            }
+          }
         }
+      }
+      catch (error) {
+        console.error(error);
       }
     }
     update();
+    verifyTokenAllowances();
   }, [input2]);
 
   return (
       <div className="input-box">
         <InputEntry text='WETH' input={input1} setInput={setInput1}/>
         <InputEntry text='LDX'  input={input2} setInput={setInput2}/>
-        <ConfirmButton text='Add liquidity' onClick={addLiquidity}/>
+        <ConfirmButton text={wethAllowanceIsVerified ? (ldxAllowanceIsVerified ? 'Add liquidity' : 'Approve ldx') : 'Approve weth'} onClick={wethAllowanceIsVerified && ldxAllowanceIsVerified ? addLiquidity : approve} errorMsg={errorMsg}/>
       </div>
     )
 }
@@ -471,7 +711,7 @@ function WithdrawBox(props) {
         let res;
         res = (await getEquivalentTokenA(ethers.parseUnits(input2, 18)));
         const formattedRes = ethers.formatUnits(res, 18);
-        if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.000000000000001 || input1 === '') {
+        if (Math.abs(parseFloat(formattedRes) - parseFloat(input1)) > 0.00001 || input1 === '') {
           setInput1(formattedRes);
         }
       }
@@ -521,7 +761,10 @@ function TokenLabel(props) {
 
 function ConfirmButton(props) {
   return (
-    <button className="confirm-button" onClick={props.onClick}>{props.text}</button>
+    <div>
+      <button className="confirm-button" onClick={props.onClick}>{props.text}</button>
+      <p className='error-msg'>{props.errorMsg}</p>
+    </div>
   )
 }
 
@@ -575,7 +818,7 @@ function MainContent(props) {
   if (props.pageState === 'Swap') {
     return (
       <div className='App-main'>
-        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts}/>
+        <SwapBox invertedInputs={invertedInputs} setInvertedInputs={setInvertedInputs} input1={input1} input2={input2} setInput1={setInput1} setInput2={setInput2} contracts={props.contracts} connectedAccount={props.connectedAccount}/>
       </div>
     )
   }
@@ -618,7 +861,7 @@ function App() {
   return (
     <div className="App">
       <AppHeader contracts={contracts} connectedAccount={connectedAccount} setConnectedAccount={setConnectedAccount} setPageState={setPageState} setWethLiquidity={setWethLiquidity} setLdxLiquidity={setLdxLiquidity}/>
-      <MainContent contracts={contracts} pageState={pageState} setPageState={setPageState} wethLiquidity={wethLiquidity} ldxLiquidity={ldxLiquidity}/>
+      <MainContent contracts={contracts} pageState={pageState} setPageState={setPageState} wethLiquidity={wethLiquidity} ldxLiquidity={ldxLiquidity} connectedAccount={connectedAccount}/>
     </div>
   )
 }
